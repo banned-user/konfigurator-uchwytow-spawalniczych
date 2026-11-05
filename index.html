@@ -122,25 +122,16 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
   <div class="header-actions">
     <button class="secondary" onclick="showSection('config')">Konfigurator</button>
-    <button class="secondary" onclick="showOrders('waiting')">W oczekiwaniu (<span id="countWaiting">0</span>)</button>
     <button class="secondary" onclick="showOrders('todo')">Do realizacji (<span id="countTodo">0</span>)</button>
+    <button class="secondary" onclick="showOrders('waiting')">W oczekiwaniu (<span id="countWaiting">0</span>)</button>
     <button class="secondary" onclick="showOrders('done')">Zrealizowane (<span id="countDone">0</span>)</button>
-    <button class="secondary" onclick="showOrders('archived')">Archiwalne (<span id="countArchived">0</span>)</button>
-    <button class="secondary" id="btnSettings" onclick="toggleSettings()">Ustawienia</button>
-  </div>
-
-  <div id="settingsPanel" style="display:none;margin-bottom:12px;padding:12px;background:#1a2332;border-radius:8px;border:1px solid var(--border)">
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="secondary" onclick="document.getElementById('fileInput').click()">Wczytaj bazę (JSON)</button>
-      <button class="secondary" onclick="document.getElementById('csvInput').click()">Wczytaj bazę (CSV)</button>
-      <button class="secondary" onclick="exportData()">Eksportuj bazę</button>
-      <button class="secondary" onclick="resetDataCache()">Resetuj bazę</button>
-      <button class="secondary" onclick="exportOrders()">Eksportuj zamówienia</button>
-      <button class="secondary" onclick="document.getElementById('ordersFileInput').click()">Importuj zamówienia</button>
-    </div>
+    <button class="secondary" onclick="document.getElementById('fileInput').click()">Wczytaj bazę (JSON)</button>
+    <button class="secondary" onclick="exportData()">Eksportuj bazę</button>
+    <button class="secondary" onclick="resetDataCache()">Resetuj bazę</button>
+    <button class="secondary" onclick="exportOrders()">Eksportuj zamówienia</button>
+    <button class="secondary" onclick="document.getElementById('ordersFileInput').click()">Importuj zamówienia</button>
     <input type="file" id="ordersFileInput" accept=".json" style="display:none" onchange="importOrdersFile(this)">
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadDataFile(this)">
-    <input type="file" id="csvInput" accept=".csv,.txt" style="display:none" onchange="loadDataFromCSV(this)">
   </div>
 
   <div id="section-config" class="section">
@@ -167,14 +158,11 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 <script>
 const STEPS = [
   { id: 'cooling', title: 'Typ uchwytu' },
-  { id: 'grip', title: 'Rękojeść' },
-  { id: 'neckFamily', title: 'Rodzina fajki' },
+  { id: 'neck', title: 'Fajka' },
   { id: 'size', title: 'Rozmiar SR' },
-  { id: 'neck', title: 'Fajka Flex/Sztywna' },
-  { id: 'neckColor', title: 'Kolor fajki' },
   { id: 'length', title: 'Długość' },
   { id: 'cover', title: 'Osłona' },
-  { id: 'coverVariant', title: 'Wariant osłony' },
+  { id: 'coverColor', title: 'Kolor osłony' },
   { id: 'leather', title: 'Skóra' },
   { id: 'leatherColor', title: 'Kolor skóry' },
   { id: 'machine', title: 'Maszyna' },
@@ -239,7 +227,6 @@ function startAutoRefresh() {
   if (syncUrl) {
     autoRefreshTimer = setInterval(() => {
       loadFromCloud();
-      loadDataFromGitHub(); // odśwież też bazę produktów
     }, 1 * 60 * 1000); // co 1 minutę
   }
 }
@@ -275,12 +262,7 @@ async function loadFromCloud() {
       orders = loaded;
       localStorage.setItem('weldingOrders', JSON.stringify(orders));
       updateOrdersCount();
-      // Nie nadpisuj formularza konfiguratora, jeśli użytkownik właśnie coś wpisuje
-      const onConfig = !document.getElementById('section-config').classList.contains('hidden');
-      const onSummary = currentStep === STEPS.length - 1;
-      if (!onConfig || !onSummary) {
-        if (!document.getElementById('section-orders').classList.contains('hidden')) renderOrders();
-      }
+      if (!document.getElementById('section-orders').classList.contains('hidden')) renderOrders();
       document.getElementById('syncStatus').textContent = 'Zsynchronizowano (' + orders.length + ')';
     } else {
       throw new Error('Niepoprawny format danych');
@@ -312,19 +294,8 @@ const DEFAULT_DATA = {
   "basePrice": 150,
   "currency": "zł",
   "coolingTypes": [
-    { "id": "gazowy", "name": "Gazowy (powietrzny)", "description": "Chłodzenie gazem" },
-    { "id": "wodny", "name": "Wodny", "description": "Chłodzenie wodą" }
-  ],
-  "grips": [
-    { "id": "grip", "name": "Grip", "price": 0 },
-    { "id": "cybergrip", "name": "Cybergrip", "price": 35 },
-    { "id": "grip3b", "name": "Grip 3B", "price": 20 },
-    { "id": "gripPot", "name": "Grip potencjometr", "price": 45 }
-  ],
-  "neckFamilies": [
-    { "id": "tlbhd", "name": "TLB HD", "sizes": ["SR9", "SR17"], "hasColor": true, "colors": ["zielony", "fioletowy", "czerwony", "pomarańczowy"] },
-    { "id": "tlbred", "name": "TLB RED", "sizes": ["SR9", "SR17", "SR20"], "hasColor": false },
-    { "id": "std", "name": "STD", "sizes": ["SR9", "SR17", "SR20", "SR18", "SR26"], "hasColor": false }
+    { "id": "gazowy", "name": "Gazowy (powietrzny)", "description": "Chłodzenie gazem", "sizes": ["SR9", "SR17", "SR26"] },
+    { "id": "wodny", "name": "Wodny", "description": "Chłodzenie wodą", "sizes": ["SR18", "SR20"] }
   ],
   "neckTypes": [
     { "id": "flex", "name": "Flex", "price": 25, "code": "Flex" },
@@ -333,26 +304,25 @@ const DEFAULT_DATA = {
   "sizes": {
     "SR9": { "name": "SR 9", "price": 90, "amperage": "do ~110A" },
     "SR17": { "name": "SR 17", "price": 110, "amperage": "do ~140A" },
+    "SR26": { "name": "SR 26", "price": 140, "amperage": "do ~180A" },
     "SR18": { "name": "SR 18", "price": 220, "amperage": "do ~320A" },
-    "SR20": { "name": "SR 20", "price": 190, "amperage": "do ~220A" },
-    "SR26": { "name": "SR 26", "price": 140, "amperage": "do ~180A" }
+    "SR20": { "name": "SR 20", "price": 190, "amperage": "do ~220A" }
   },
   "lengths": [
     { "m": 4, "price": 45 }, { "m": 6, "price": 65 }, { "m": 8, "price": 85 },
     { "m": 10, "price": 105 }, { "m": 12, "price": 125 }, { "m": 14, "price": 145 }, { "m": 16, "price": 165 }
   ],
   "covers": [
-    { "id": "guma", "name": "Guma", "hasColors": false, "variants": [
-      { "id": "std", "name": "Standard", "pricePerMeter": 4.5 },
-      { "id": "swiss", "name": "Swiss", "pricePerMeter": 50 }
-    ] },
-    { "id": "tekstyl", "name": "Tekstyl", "hasColors": true, "pricePerMeter": 2.8, "colors": ["szary", "czarny", "granatowy", "czerwony", "pomarańczowy"] }
+    { "id": "guma", "name": "Guma", "pricePerMeter": 4.5, "code": "Sguma" },
+    { "id": "tekstyl", "name": "Tekstyl", "pricePerMeter": 2.8, "code": "Stekstyl" }
   ],
+  "coverColors": ["szary", "czarny", "granatowy", "czerwony", "pomarańczowy"],
   "leathers": [
-    { "id": "natural", "name": "Naturalna", "price": 55, "colors": ["czarna", "czerwona"] },
-    { "id": "syntetyk", "name": "Syntetyczna", "price": 32, "colors": ["czarna", "czerwona", "zielona", "fioletowa", "niebieska", "żółta", "pomarańczowa", "szara"] },
-    { "id": "brak", "name": "Bez skóry", "price": 0, "colors": [] }
+    { "id": "natural", "name": "Naturalna", "price": 55, "code": "natural" },
+    { "id": "syntetyk", "name": "Syntetyczna", "price": 32, "code": "syntetyk" },
+    { "id": "brak", "name": "Bez skóry", "price": 0, "code": "brak" }
   ],
+  "leatherColors": ["czarna", "brązowa", "szara", "beżowa", "czerwona"],
   "machines": [
     { "id": "kemppi7pin", "name": "Kemppi 7pin", "price": 38, "code": "kemppi 7pin" },
     { "id": "kemppi5pin", "name": "Kemppi 5pin", "price": 38, "code": "kemppi 5pin" },
@@ -366,10 +336,6 @@ const DEFAULT_DATA = {
 };
 
 function removeOrder(id) {
-  const order = orders.find(o => o.id === id);
-  if (!order) return;
-  const code = order.code || 'to zamówienie';
-  if (!confirm(`Na pewno usunąć zamówienie?\n\n${code}\n\nTej operacji nie można cofnąć.`)) return;
   orders = orders.filter(o => o.id !== id);
   localStorage.setItem('weldingOrders', JSON.stringify(orders));
   updateOrdersCount();
@@ -377,121 +343,8 @@ function removeOrder(id) {
   saveToCloud();
 }
 
-function toggleSettings() {
-  const panel = document.getElementById('settingsPanel');
-  if (panel) {
-    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-  }
-}
-
-function loadDataFromCSV(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const text = e.target.result;
-      const lines = text.split(/\r?\n/).filter(l => l.trim());
-      if (lines.length < 2) throw new Error('Plik CSV jest pusty lub nie ma nagłówka');
-
-      // Prosty parser CSV (obsługuje podstawowe przypadki)
-      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-      const rows = lines.slice(1).map(line => {
-        const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-        const obj = {};
-        headers.forEach((h, i) => { obj[h] = values[i] || ''; });
-        return obj;
-      });
-
-      // Mapowanie na strukturę bazy (przykładowe – dostosuj do swojego CSV)
-      // Oczekiwane kolumny: type, id, name, price, description, code, pricePerMeter, sizes
-      const newData = JSON.parse(JSON.stringify(DEFAULT_DATA)); // kopia domyślnej
-
-      rows.forEach(r => {
-        const type = (r.type || r.Type || '').toLowerCase();
-        if (type === 'cooling' || type === 'coolingtype') {
-          newData.coolingTypes.push({
-            id: r.id || r.Id || '',
-            name: r.name || r.Name || '',
-            description: r.description || r.Description || '',
-            sizes: (r.sizes || r.Sizes || '').split('|').map(s => s.trim()).filter(Boolean)
-          });
-        } else if (type === 'size') {
-          newData.sizes[r.id || r.Id] = {
-            name: r.name || r.Name || '',
-            price: Number(r.price || r.Price || 0),
-            amperage: r.amperage || r.Amperage || ''
-          };
-        } else if (type === 'cover') {
-          newData.covers.push({
-            id: r.id || r.Id || '',
-            name: r.name || r.Name || '',
-            pricePerMeter: Number(r.pricePerMeter || r.PricePerMeter || r.price || 0),
-            code: r.code || r.Code || ''
-          });
-        } else if (type === 'leather') {
-          newData.leathers.push({
-            id: r.id || r.Id || '',
-            name: r.name || r.Name || '',
-            price: Number(r.price || r.Price || 0),
-            code: r.code || r.Code || ''
-          });
-        } else if (type === 'machine') {
-          newData.machines.push({
-            id: r.id || r.Id || '',
-            name: r.name || r.Name || '',
-            price: Number(r.price || r.Price || 0),
-            code: r.code || r.Code || ''
-          });
-        }
-      });
-
-      data = newData;
-      localStorage.setItem('weldingData', JSON.stringify(data));
-      alert('Baza wczytana z CSV (' + rows.length + ' wierszy)');
-      currentStep = 0;
-      config = {};
-      renderProgress();
-      renderStep();
-    } catch (err) {
-      alert('Błąd wczytywania CSV: ' + err.message);
-      console.error(err);
-    }
-  };
-  reader.readAsText(file);
-  input.value = '';
-}
-
-async function loadDataFromGitHub() {
-  const url = 'https://raw.githubusercontent.com/banned-user/konfigurator-uchwytow-spawalniczych/main/data.json';
-  try {
-    const res = await fetch(url + '?_=' + Date.now());
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const loaded = await res.json();
-    if (isValidData(loaded)) {
-      data = loaded;
-      localStorage.setItem('weldingData', JSON.stringify(data));
-      const status = document.getElementById('syncStatus');
-      if (status) status.textContent = 'Baza zaktualizowana';
-      if (typeof renderStep === 'function') renderStep();
-      return true;
-    }
-  } catch (err) {
-    console.warn('Nie udało się wczytać bazy z GitHuba:', err.message);
-  }
-  return false;
-}
-
-function isValidData(d) {
-  return d && d.grips && d.neckFamilies && d.covers && d.leathers && Array.isArray(d.grips) && d.grips.length > 0;
-}
-
 function init() {
-  let loaded = JSON.parse(localStorage.getItem('weldingData') || 'null');
-  data = isValidData(loaded) ? loaded : DEFAULT_DATA;
-  if (!isValidData(loaded)) {
-    localStorage.setItem('weldingData', JSON.stringify(DEFAULT_DATA));
-  }
+  data = JSON.parse(localStorage.getItem('weldingData') || 'null') || DEFAULT_DATA;
   orders.forEach(o => {
     if (!o.status) o.status = 'todo';
   });
@@ -505,9 +358,6 @@ function init() {
   renderProgress();
   renderStep();
   document.getElementById('section-config').classList.add('active');
-
-  // Spróbuj od razu zaktualizować bazę z GitHuba
-  loadDataFromGitHub();
 }
 
 function showSection(name) {
@@ -522,14 +372,12 @@ function showOrders(view) {
   const titles = {
     todo: 'Do realizacji',
     waiting: 'W oczekiwaniu',
-    done: 'Zrealizowane',
-    archived: 'Archiwalne'
+    done: 'Zrealizowane'
   };
   const subtitles = {
     todo: 'Gotowe do produkcji',
     waiting: 'Oczekujące na potwierdzenie / materiały',
-    done: 'Zrealizowane zamówienia',
-    archived: 'Archiwum – szukaj po kliencie'
+    done: 'Zrealizowane zamówienia'
   };
   document.getElementById('ordersTitle').textContent = titles[view] || 'Zamówienia';
   document.getElementById('ordersSubtitle').textContent = subtitles[view] || '';
@@ -540,33 +388,19 @@ function updateOrdersCount() {
   const todo = orders.filter(o => o.status === 'todo').length;
   const waiting = orders.filter(o => o.status === 'waiting').length;
   const done = orders.filter(o => o.status === 'done').length;
-  const archived = orders.filter(o => o.status === 'archived').length;
   document.getElementById('countTodo').textContent = todo;
   document.getElementById('countWaiting').textContent = waiting;
   document.getElementById('countDone').textContent = done;
-  const el = document.getElementById('countArchived');
-  if (el) el.textContent = archived;
 }
 
 function renderProgress() {
   const el = document.getElementById('progress');
   el.innerHTML = STEPS.map((s, i) =>
-    `<div class="step ${i === currentStep ? 'active' : ''} ${i < currentStep ? 'done' : ''}" onclick="jumpToStep(${i})" style="cursor:pointer">${s.title}</div>`
+    `<div class="step ${i === currentStep ? 'active' : ''} ${i < currentStep ? 'done' : ''}">${s.title}</div>`
   ).join('');
 }
 
-function jumpToStep(index) {
-  if (index >= 0 && index < STEPS.length) {
-    currentStep = index;
-    renderProgress();
-    renderStep(true); // true = użytkownik świadomie wybrał ten krok, nie pomijaj
-  }
-}
-
-function renderStep(forceShow) {
-  if (!data || !data.grips || !data.neckFamilies) {
-    data = DEFAULT_DATA;
-  }
+function renderStep() {
   const step = STEPS[currentStep];
   const content = document.getElementById('stepContent');
   const btnNext = document.getElementById('btnNext');
@@ -585,29 +419,6 @@ function renderStep(forceShow) {
     return;
   }
 
-  // Skip steps that don't apply (only when not forced by user click)
-  if (!forceShow) {
-    if (step.id === 'neckColor') {
-      const fam = data.neckFamilies?.find(f => f.id === config.neckFamily);
-      if (!fam?.hasColor) {
-        nextStep();
-        return;
-      }
-    }
-    if (step.id === 'coverVariant') {
-      const cover = data.covers?.find(c => c.id === config.cover);
-      if (!cover || (!cover.variants && !cover.colors)) {
-        nextStep();
-        return;
-      }
-    }
-    if (step.id === 'leatherColor' && config.leather === 'brak') {
-      config.leatherColor = '';
-      nextStep();
-      return;
-    }
-  }
-
   let html = `<h2 style="margin-bottom:16px">${step.title}</h2>`;
   html += '<div class="options">';
 
@@ -615,37 +426,15 @@ function renderStep(forceShow) {
     data.coolingTypes.forEach(t => {
       html += optionHTML(t.id, t.name, t.description || '', config.cooling === t.id);
     });
-  } else if (step.id === 'grip') {
-    data.grips.forEach(g => {
-      html += optionHTML(g.id, g.name, g.price ? `+${g.price} ${data.currency}` : '', config.grip === g.id);
-    });
-  } else if (step.id === 'neckFamily') {
-    data.neckFamilies.forEach(f => {
-      html += optionHTML(f.id, f.name, '', config.neckFamily === f.id);
+  } else if (step.id === 'neck') {
+    data.neckTypes.forEach(t => {
+      html += optionHTML(t.id, t.name, `+${t.price} ${data.currency}`, config.neck === t.id);
     });
   } else if (step.id === 'size') {
-    let allowed = data.neckFamilies.find(f => f.id === config.neckFamily)?.sizes || [];
-    if (config.grip === 'cybergrip') {
-      allowed = allowed.filter(s => s === 'SR9' || s === 'SR17');
-    }
-    if (allowed.length === 0) {
-      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Najpierw wybierz rodzinę fajki</p>';
-    }
+    const allowed = data.coolingTypes.find(c => c.id === config.cooling)?.sizes || [];
     allowed.forEach(sid => {
       const s = data.sizes[sid];
       if (s) html += optionHTML(sid, s.name, `${s.amperage || ''} · +${s.price} ${data.currency}`, config.size === sid);
-    });
-  } else if (step.id === 'neck') {
-    data.neckTypes.forEach(t => {
-      html += optionHTML(t.id, t.name, t.price ? `+${t.price} ${data.currency}` : '', config.neck === t.id);
-    });
-  } else if (step.id === 'neckColor') {
-    const colors = data.neckFamilies.find(f => f.id === config.neckFamily)?.colors || [];
-    if (colors.length === 0) {
-      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Ta rodzina fajki nie ma kolorów</p>';
-    }
-    colors.forEach(col => {
-      html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.neckColor === col);
     });
   } else if (step.id === 'length') {
     data.lengths.forEach(l => {
@@ -653,36 +442,26 @@ function renderStep(forceShow) {
     });
   } else if (step.id === 'cover') {
     data.covers.forEach(c => {
-      html += optionHTML(c.id, c.name, '', config.cover === c.id);
+      const ppm = c.pricePerMeter || c.price || 0;
+      html += optionHTML(c.id, c.name, `${ppm} ${data.currency}/m`, config.cover === c.id);
     });
-  } else if (step.id === 'coverVariant') {
-    const cover = data.covers.find(c => c.id === config.cover);
-    if (!cover) {
-      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Najpierw wybierz osłonę</p>';
-    } else if (cover.variants) {
-      cover.variants.forEach(v => {
-        html += optionHTML(v.id, v.name, `${v.pricePerMeter} ${data.currency}/m`, config.coverVariant === v.id);
-      });
-    } else if (cover.colors) {
-      cover.colors.forEach(col => {
-        html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.coverVariant === col);
-      });
-    } else {
-      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Ta osłona nie ma wariantów</p>';
-    }
+  } else if (step.id === 'coverColor') {
+    data.coverColors.forEach(col => {
+      html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.coverColor === col);
+    });
   } else if (step.id === 'leather') {
     data.leathers.forEach(l => {
-      html += optionHTML(l.id, l.name, l.price ? `+${l.price} ${data.currency}` : '', config.leather === l.id);
+      html += optionHTML(l.id, l.name, `+${l.price} ${data.currency}`, config.leather === l.id);
     });
   } else if (step.id === 'leatherColor') {
-    const leather = data.leathers.find(l => l.id === config.leather);
-    const colors = leather?.colors || [];
-    if (colors.length === 0) {
-      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak kolorów dla wybranej skóry</p>';
+    if (config.leather === 'brak') {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak skóry – pomijamy kolor</p>';
+      config.leatherColor = '';
+    } else {
+      data.leatherColors.forEach(col => {
+        html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.leatherColor === col);
+      });
     }
-    colors.forEach(col => {
-      html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.leatherColor === col);
-    });
   } else if (step.id === 'machine') {
     data.machines.forEach(m => {
       html += optionHTML(m.id, m.name, `+${m.price} ${data.currency}`, config.machine === m.id);
@@ -697,33 +476,24 @@ function renderStep(forceShow) {
   });
 }
 
+function optionHTML(id, name, price, selected) {
+  return `<div class="option ${selected ? 'selected' : ''}" data-id="${id}"><div class="name">${name}</div>${price ? `<div class="price">${price}</div>` : ''}</div>`;
+}
+
 function selectOption(stepId, value) {
   if (stepId === 'length') value = Number(value);
   config[stepId] = value;
-
-  // Reset dependent choices
-  if (stepId === 'grip') delete config.size;
-  if (stepId === 'neckFamily') {
+  if (stepId === 'cooling') {
     delete config.size;
-    delete config.neckColor;
   }
-  if (stepId === 'cover') delete config.coverVariant;
-  if (stepId === 'leather' && value === 'brak') config.leatherColor = '';
-
+  if (stepId === 'leather' && value === 'brak') {
+    config.leatherColor = '';
+  }
   renderStep();
 }
 
 function isStepComplete() {
   const step = STEPS[currentStep];
-  if (!data) return false;
-  if (step.id === 'neckColor') {
-    const fam = data.neckFamilies?.find(f => f.id === config.neckFamily);
-    if (!fam?.hasColor) return true;
-  }
-  if (step.id === 'coverVariant') {
-    const cover = data.covers?.find(c => c.id === config.cover);
-    if (!cover || (!cover.variants && !cover.colors)) return true;
-  }
   if (step.id === 'leatherColor' && config.leather === 'brak') return true;
   return config[step.id] !== undefined && config[step.id] !== null && config[step.id] !== '';
 }
@@ -756,26 +526,16 @@ function calculatePrice() {
   let total = data.basePrice || 0;
   const size = data.sizes[config.size];
   if (size) total += size.price || 0;
-  const grip = data.grips.find(g => g.id === config.grip);
-  if (grip) total += grip.price || 0;
   const neck = data.neckTypes.find(n => n.id === config.neck);
   if (neck) total += neck.price || 0;
   const lengthObj = data.lengths.find(l => l.m === config.length);
   if (lengthObj) total += lengthObj.price || 0;
-
   const cover = data.covers.find(c => c.id === config.cover);
   if (cover) {
     const meters = getCoverMeters();
-    let ppm = 0;
-    if (cover.variants) {
-      const v = cover.variants.find(x => x.id === config.coverVariant);
-      ppm = v?.pricePerMeter || 0;
-    } else {
-      ppm = cover.pricePerMeter || 0;
-    }
+    const ppm = cover.pricePerMeter || cover.price || 0;
     total += meters * ppm;
   }
-
   const leather = data.leathers.find(l => l.id === config.leather);
   if (leather) total += leather.price || 0;
   const machine = data.machines.find(m => m.id === config.machine);
@@ -785,26 +545,24 @@ function calculatePrice() {
 
 function generateCode() {
   const size = config.size || '';
-  const neckFam = data.neckFamilies.find(f => f.id === config.neckFamily);
-  const neckFamCode = neckFam ? neckFam.name.replace(/\s+/g, '') : '';
   const neck = data.neckTypes.find(n => n.id === config.neck);
   const neckCode = neck && neck.code ? neck.code : '';
   const length = config.length ? config.length + 'M' : '';
   const cover = data.covers.find(c => c.id === config.cover);
-  const coverCode = cover ? cover.id : '';
+  const coverCode = cover ? cover.code : '';
   const leather = data.leathers.find(l => l.id === config.leather);
-  const leatherCode = leather && leather.id !== 'brak' ? leather.id : '';
+  const leatherCode = leather && leather.code !== 'brak' ? leather.code : '';
+  const leatherColor = config.leatherColor || '';
+  const coverColor = config.coverColor || '';
   const machine = data.machines.find(m => m.id === config.machine);
   const machineCode = machine ? machine.code : '';
 
   let parts = [size];
-  if (neckFamCode) parts.push(neckFamCode);
   if (neckCode) parts.push(neckCode);
-  if (config.neckColor) parts.push(config.neckColor);
   if (length) parts.push(length);
   if (coverCode) parts.push(coverCode);
-  if (config.coverVariant) parts.push(config.coverVariant);
-  if (leatherCode) parts.push('Skora ' + (config.leatherColor || '') + ' ' + leatherCode);
+  if (leatherCode) parts.push('Skora ' + leatherColor + ' ' + leatherCode);
+  if (coverColor) parts.push(coverColor);
   if (machineCode) parts.push(machineCode);
 
   return parts.filter(Boolean).join('_').replace(/\s+/g, ' ').trim();
@@ -813,28 +571,25 @@ function generateCode() {
 function renderSummary(content) {
   const price = calculatePrice();
   const code = generateCode();
+  const coverMeters = getCoverMeters();
+  const cover = data.covers.find(c => c.id === config.cover);
+  const coverPrice = cover ? (coverMeters * (cover.pricePerMeter || cover.price || 0)) : 0;
 
   let html = '<h2 style="margin-bottom:16px">Podsumowanie</h2>';
   html += '<div class="summary">';
   html += row('Typ', data.coolingTypes.find(c => c.id === config.cooling)?.name || '-');
-  html += row('Rękojeść', data.grips.find(g => g.id === config.grip)?.name || '-');
-  html += row('Rodzina fajki', data.neckFamilies.find(f => f.id === config.neckFamily)?.name || '-');
-  html += row('Rozmiar', data.sizes[config.size]?.name || '-');
   html += row('Fajka', data.neckTypes.find(n => n.id === config.neck)?.name || '-');
-  if (config.neckColor) html += row('Kolor fajki', config.neckColor);
+  html += row('Rozmiar', data.sizes[config.size]?.name || '-');
   html += row('Długość', (config.length || '-') + ' m');
-  const cover = data.covers.find(c => c.id === config.cover);
-  html += row('Osłona', cover?.name || '-');
-  if (config.coverVariant) html += row('Wariant osłony', config.coverVariant);
+  html += row('Osłona', (data.covers.find(c => c.id === config.cover)?.name || '-') + ' (' + coverMeters + ' m, ' + Math.round(coverPrice) + ' zł)');
+  html += row('Kolor osłony', config.coverColor || '-');
   html += row('Skóra', data.leathers.find(l => l.id === config.leather)?.name || '-');
-  if (config.leather !== 'brak' && config.leatherColor) html += row('Kolor skóry', config.leatherColor);
+  if (config.leather !== 'brak') html += row('Kolor skóry', config.leatherColor || '-');
   html += row('Maszyna', data.machines.find(m => m.id === config.machine)?.name || '-');
   html += '</div>';
   html += '<div class="product-code" id="productCode">' + code + '</div>';
   html += '<div class="total">Cena: ' + price + ' ' + (data.currency || 'zł') + '</div>';
   html += '<div style="margin-top:20px">';
-  html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Nazwa własna (opcjonalnie)</label>';
-  html += '<input type="text" id="customName" placeholder="np. dla klienta X, specjalna wersja..." style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);margin-bottom:12px">';
   html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Nazwa klienta</label>';
   html += '<input type="text" id="customerName" placeholder="Imię i nazwisko / firma" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);margin-bottom:12px">';
   html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Telefon</label>';
@@ -855,40 +610,11 @@ function row(label, value) {
 }
 
 function saveOrder(status) {
-  // Sprawdź, czy wszystkie wymagane kroki są uzupełnione
-  const missing = [];
-  STEPS.forEach((s, i) => {
-    if (s.id === 'summary') return;
-    if (s.id === 'neckColor' && !(data.neckFamilies.find(f => f.id === config.neckFamily)?.hasColor)) return;
-    if (s.id === 'coverVariant' && !(data.covers.find(c => c.id === config.cover)?.variants || data.covers.find(c => c.id === config.cover)?.colors)) return;
-    if (s.id === 'leatherColor' && config.leather === 'brak') return;
-    const val = config[s.id];
-    if (val === undefined || val === null || val === '') {
-      missing.push({ step: s, index: i });
-    }
-  });
-
-  if (missing.length > 0) {
-    // Podświetl brakujące kafelki na czerwono
-    document.querySelectorAll('.progress .step').forEach((el, idx) => {
-      const isMissing = missing.some(m => m.index === idx);
-      if (isMissing) {
-        el.style.background = '#7f1d1d';
-        el.style.color = '#fecaca';
-        el.style.borderColor = '#ef4444';
-      }
-    });
-    const names = missing.map(m => m.step.title).join(', ');
-    alert('Wybierz wariant w kafelkach:\n\n' + names);
-    return;
-  }
-
   const order = {
     id: Date.now(),
     code: generateCode(),
     price: calculatePrice(),
     status: status,
-    customName: document.getElementById('customName')?.value || '',
     customerName: document.getElementById('customerName')?.value || '',
     customerPhone: document.getElementById('customerPhone')?.value || '',
     notes: document.getElementById('orderNotes')?.value || '',
@@ -909,30 +635,12 @@ function saveOrder(status) {
 
 function renderOrders() {
   const list = document.getElementById('ordersList');
-  let filtered = orders.filter(o => o.status === currentOrdersView);
-
-  // Search box for archive
-  let searchHtml = '';
-  if (currentOrdersView === 'archived') {
-    searchHtml = `<div style="margin-bottom:12px"><input type="text" id="archiveSearch" placeholder="Szukaj po kliencie, telefonie, nazwie własnej..." style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text)" oninput="renderOrders()"></div>`;
-    const q = (document.getElementById('archiveSearch')?.value || '').toLowerCase().trim();
-    if (q) {
-      filtered = filtered.filter(o =>
-        (o.customerName || '').toLowerCase().includes(q) ||
-        (o.customerPhone || '').toLowerCase().includes(q) ||
-        (o.customName || '').toLowerCase().includes(q) ||
-        (o.code || '').toLowerCase().includes(q) ||
-        (o.notes || '').toLowerCase().includes(q)
-      );
-    }
-  }
-
+  const filtered = orders.filter(o => o.status === currentOrdersView);
   if (filtered.length === 0) {
-    list.innerHTML = searchHtml + '<p style="color:var(--muted);text-align:center;padding:40px 0">Brak zamówień w tej kategorii</p>';
+    list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0">Brak zamówień w tej kategorii</p>';
     return;
   }
-
-  list.innerHTML = searchHtml + filtered.map(o => {
+  list.innerHTML = filtered.map(o => {
     let actions = '';
     if (currentOrdersView === 'todo') {
       actions = `<button class="success" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'done')">Zrealizowano</button>
@@ -940,22 +648,17 @@ function renderOrders() {
     } else if (currentOrdersView === 'waiting') {
       actions = `<button class="success" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'todo')">Do realizacji</button>
                  <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'done')">Zrealizowano</button>`;
-    } else if (currentOrdersView === 'done') {
-      actions = `<button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'archived')">Archiwizuj</button>
-                 <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'todo')">Przywróć</button>`;
-    } else if (currentOrdersView === 'archived') {
-      actions = `<button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'done')">Przywróć</button>`;
+    } else {
+      actions = `<button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'todo')">Przywróć</button>`;
     }
     const detailsId = 'details-' + o.id;
     return `<div class="order">
       <div class="code">${o.code}</div>
-      ${o.customName ? `<div style="margin-top:2px;font-weight:600">${o.customName}</div>` : ''}
       ${o.customerName ? `<div style="margin-top:4px">${o.customerName}${o.customerPhone ? ' · ' + o.customerPhone : ''}</div>` : ''}
       ${o.notes ? `<div style="margin-top:4px;color:var(--muted);font-size:0.9rem">${o.notes}</div>` : ''}
       <div class="meta">${o.date} · ${o.price} zł</div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
         <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="toggleDetails('${detailsId}')">Podgląd</button>
-        <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="editOrder(${o.id})">Edytuj</button>
         ${actions}
         <button class="danger" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="removeOrder(${o.id})">Usuń</button>
       </div>
@@ -974,60 +677,23 @@ function toggleDetails(id) {
 function renderOrderDetails(o) {
   const c = o.config || {};
   const cooling = data.coolingTypes.find(x => x.id === c.cooling)?.name || '-';
-  const grip = data.grips.find(x => x.id === c.grip)?.name || '-';
-  const neckFam = data.neckFamilies.find(x => x.id === c.neckFamily)?.name || '-';
-  const size = data.sizes[c.size]?.name || c.size || '-';
   const neck = data.neckTypes.find(x => x.id === c.neck)?.name || '-';
+  const size = data.sizes[c.size]?.name || c.size || '-';
   const cover = data.covers.find(x => x.id === c.cover)?.name || '-';
   const leather = data.leathers.find(x => x.id === c.leather)?.name || '-';
   const machine = data.machines.find(x => x.id === c.machine)?.name || '-';
   return `
     <div class="summary" style="font-size:0.95rem">
-      ${o.customName ? `<div class="row"><span>Nazwa własna</span><span>${o.customName}</span></div>` : ''}
       <div class="row"><span>Typ</span><span>${cooling}</span></div>
-      <div class="row"><span>Rękojeść</span><span>${grip}</span></div>
-      <div class="row"><span>Rodzina fajki</span><span>${neckFam}</span></div>
-      <div class="row"><span>Rozmiar</span><span>${size}</span></div>
       <div class="row"><span>Fajka</span><span>${neck}</span></div>
-      ${c.neckColor ? `<div class="row"><span>Kolor fajki</span><span>${c.neckColor}</span></div>` : ''}
+      <div class="row"><span>Rozmiar</span><span>${size}</span></div>
       <div class="row"><span>Długość</span><span>${c.length || '-'} m</span></div>
-      <div class="row"><span>Osłona</span><span>${cover}${c.coverVariant ? ' (' + c.coverVariant + ')' : ''}</span></div>
+      <div class="row"><span>Osłona</span><span>${cover} (${c.coverColor || '-'})</span></div>
       <div class="row"><span>Skóra</span><span>${leather}${c.leather !== 'brak' && c.leatherColor ? ' (' + c.leatherColor + ')' : ''}</span></div>
       <div class="row"><span>Maszyna</span><span>${machine}</span></div>
       <div class="row"><span>Cena</span><span>${o.price} zł</span></div>
     </div>
   `;
-}
-
-function editOrder(id) {
-  const order = orders.find(o => o.id === id);
-  if (!order) return;
-  if (!confirm('Załadować to zamówienie do konfiguratora do edycji?\n\nAktualna konfiguracja zostanie zastąpiona.')) return;
-
-  // Usuń stare zamówienie (zostanie zapisane na nowo po edycji)
-  orders = orders.filter(o => o.id !== id);
-  localStorage.setItem('weldingOrders', JSON.stringify(orders));
-  updateOrdersCount();
-  saveToCloud();
-
-  // Załaduj konfigurację
-  config = { ...(order.config || {}) };
-  currentStep = STEPS.length - 1; // od razu na podsumowanie
-  showSection('config');
-  renderProgress();
-  renderStep();
-
-  // Uzupełnij pola po wyrenderowaniu
-  setTimeout(() => {
-    const setVal = (id, val) => {
-      const el = document.getElementById(id);
-      if (el && val) el.value = val;
-    };
-    setVal('customName', order.customName);
-    setVal('customerName', order.customerName);
-    setVal('customerPhone', order.customerPhone);
-    setVal('orderNotes', order.notes);
-  }, 50);
 }
 
 function changeStatus(id, newStatus) {
@@ -1042,7 +708,7 @@ function changeStatus(id, newStatus) {
 }
 
 function clearCurrentOrders() {
-  const viewName = { todo: 'do realizacji', waiting: 'w oczekiwaniu', done: 'zrealizowane', archived: 'archiwalne' }[currentOrdersView];
+  const viewName = { todo: 'do realizacji', waiting: 'w oczekiwaniu', done: 'zrealizowane' }[currentOrdersView];
   if (confirm(`Na pewno wyczyścić listę „${viewName}”?`)) {
     orders = orders.filter(o => o.status !== currentOrdersView);
     localStorage.setItem('weldingOrders', JSON.stringify(orders));
