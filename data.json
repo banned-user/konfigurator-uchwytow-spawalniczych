@@ -48,12 +48,12 @@
   "leatherColors": ["czarna", "zielona", "szara", "fioletowa", "czerwona"],
   "machines": [
     { "id": "kemppi7pin", "name": "Kemppi 7pin", "price": 38, "code": "kemppi 7pin" },
-    { "id": "kemppi4pin", "name": "Kemppi 4pin", "price": 38, "code": "kemppi 5pin" },
+    { "id": "kemppi4pin", "name": "Kemppi 4pin", "price": 38, "code": "kemppi 4pin" },
     { "id": "fronius", "name": "Fronius", "price": 45, "code": "fronius" },
     { "id": "esab", "name": "ESAB", "price": 40, "code": "esab" },
     { "id": "lincoln", "name": "Lincoln", "price": 40, "code": "lincoln" },
     { "id": "migatronic", "name": "Migatronic", "price": 42, "code": "migatronic" },
-    { "id": "ewm", "name": "EWM", "price": 40, "code": "ewm" },
+    { "id": "ewm", "name": "EWM 5pin", "price": 40, "code": "ewm5pin" },
     { "id": "9spa", "name": "Spartus 9spa", "price": 25, "code": "9spa" }
   ]
 }
