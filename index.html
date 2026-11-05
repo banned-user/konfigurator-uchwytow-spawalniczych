@@ -559,11 +559,11 @@ function jumpToStep(index) {
   if (index >= 0 && index < STEPS.length) {
     currentStep = index;
     renderProgress();
-    renderStep();
+    renderStep(true); // true = użytkownik świadomie wybrał ten krok, nie pomijaj
   }
 }
 
-function renderStep() {
+function renderStep(forceShow) {
   if (!data || !data.grips || !data.neckFamilies) {
     data = DEFAULT_DATA;
   }
@@ -585,25 +585,27 @@ function renderStep() {
     return;
   }
 
-  // Skip steps that don't apply
-  if (step.id === 'neckColor') {
-    const fam = data.neckFamilies?.find(f => f.id === config.neckFamily);
-    if (!fam?.hasColor) {
+  // Skip steps that don't apply (only when not forced by user click)
+  if (!forceShow) {
+    if (step.id === 'neckColor') {
+      const fam = data.neckFamilies?.find(f => f.id === config.neckFamily);
+      if (!fam?.hasColor) {
+        nextStep();
+        return;
+      }
+    }
+    if (step.id === 'coverVariant') {
+      const cover = data.covers?.find(c => c.id === config.cover);
+      if (!cover || (!cover.variants && !cover.colors)) {
+        nextStep();
+        return;
+      }
+    }
+    if (step.id === 'leatherColor' && config.leather === 'brak') {
+      config.leatherColor = '';
       nextStep();
       return;
     }
-  }
-  if (step.id === 'coverVariant') {
-    const cover = data.covers?.find(c => c.id === config.cover);
-    if (!cover || (!cover.variants && !cover.colors)) {
-      nextStep();
-      return;
-    }
-  }
-  if (step.id === 'leatherColor' && config.leather === 'brak') {
-    config.leatherColor = '';
-    nextStep();
-    return;
   }
 
   let html = `<h2 style="margin-bottom:16px">${step.title}</h2>`;
@@ -623,9 +625,11 @@ function renderStep() {
     });
   } else if (step.id === 'size') {
     let allowed = data.neckFamilies.find(f => f.id === config.neckFamily)?.sizes || [];
-    // Cybergrip ogranicza do SR9 i SR17
     if (config.grip === 'cybergrip') {
       allowed = allowed.filter(s => s === 'SR9' || s === 'SR17');
+    }
+    if (allowed.length === 0) {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Najpierw wybierz rodzinę fajki</p>';
     }
     allowed.forEach(sid => {
       const s = data.sizes[sid];
@@ -637,6 +641,9 @@ function renderStep() {
     });
   } else if (step.id === 'neckColor') {
     const colors = data.neckFamilies.find(f => f.id === config.neckFamily)?.colors || [];
+    if (colors.length === 0) {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Ta rodzina fajki nie ma kolorów</p>';
+    }
     colors.forEach(col => {
       html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.neckColor === col);
     });
@@ -650,14 +657,18 @@ function renderStep() {
     });
   } else if (step.id === 'coverVariant') {
     const cover = data.covers.find(c => c.id === config.cover);
-    if (cover?.variants) {
+    if (!cover) {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Najpierw wybierz osłonę</p>';
+    } else if (cover.variants) {
       cover.variants.forEach(v => {
         html += optionHTML(v.id, v.name, `${v.pricePerMeter} ${data.currency}/m`, config.coverVariant === v.id);
       });
-    } else if (cover?.colors) {
+    } else if (cover.colors) {
       cover.colors.forEach(col => {
         html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.coverVariant === col);
       });
+    } else {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Ta osłona nie ma wariantów</p>';
     }
   } else if (step.id === 'leather') {
     data.leathers.forEach(l => {
@@ -665,7 +676,11 @@ function renderStep() {
     });
   } else if (step.id === 'leatherColor') {
     const leather = data.leathers.find(l => l.id === config.leather);
-    (leather?.colors || []).forEach(col => {
+    const colors = leather?.colors || [];
+    if (colors.length === 0) {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak kolorów dla wybranej skóry</p>';
+    }
+    colors.forEach(col => {
       html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.leatherColor === col);
     });
   } else if (step.id === 'machine') {
