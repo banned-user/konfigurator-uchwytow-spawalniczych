@@ -468,7 +468,7 @@ async function loadDataFromGitHub() {
     const res = await fetch(url + '?_=' + Date.now());
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const loaded = await res.json();
-    if (loaded && loaded.coolingTypes) {
+    if (isValidData(loaded)) {
       data = loaded;
       localStorage.setItem('weldingData', JSON.stringify(data));
       const status = document.getElementById('syncStatus');
@@ -482,8 +482,16 @@ async function loadDataFromGitHub() {
   return false;
 }
 
+function isValidData(d) {
+  return d && d.grips && d.neckFamilies && d.covers && d.leathers && Array.isArray(d.grips) && d.grips.length > 0;
+}
+
 function init() {
-  data = JSON.parse(localStorage.getItem('weldingData') || 'null') || DEFAULT_DATA;
+  let loaded = JSON.parse(localStorage.getItem('weldingData') || 'null');
+  data = isValidData(loaded) ? loaded : DEFAULT_DATA;
+  if (!isValidData(loaded)) {
+    localStorage.setItem('weldingData', JSON.stringify(DEFAULT_DATA));
+  }
   orders.forEach(o => {
     if (!o.status) o.status = 'todo';
   });
