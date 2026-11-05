@@ -4,56 +4,259 @@
   "coolingTypes": [
     {
       "id": "gazowy",
-      "name": "Gazowy",
-      "description": "Chłodzenie gazem",
-      "sizes": ["SR9", "SR17", "SR26"]
+      "name": "Gazowy (powietrzny)",
+      "description": "Chłodzenie gazem"
     },
     {
       "id": "wodny",
       "name": "Wodny",
-      "description": "Chłodzenie wodą",
-      "sizes": ["SR18", "SR20"]
+      "description": "Chłodzenie wodą"
+    }
+  ],
+  "grips": [
+    {
+      "id": "grip",
+      "name": "Grip",
+      "price": 0
+    },
+    {
+      "id": "cybergrip",
+      "name": "Cybergrip",
+      "price": 35
+    },
+    {
+      "id": "grip3b",
+      "name": "Grip 3B",
+      "price": 20
+    },
+    {
+      "id": "gripPot",
+      "name": "Grip potencjometr",
+      "price": 45
+    }
+  ],
+  "neckFamilies": [
+    {
+      "id": "tlbhd",
+      "name": "TLB HD",
+      "sizes": [
+        "SR9",
+        "SR17"
+      ],
+      "hasColor": true,
+      "colors": [
+        "zielony",
+        "fioletowy",
+        "czerwony",
+        "pomarańczowy"
+      ]
+    },
+    {
+      "id": "tlbred",
+      "name": "TLB RED",
+      "sizes": [
+        "SR9",
+        "SR17",
+        "SR20"
+      ],
+      "hasColor": false
+    },
+    {
+      "id": "std",
+      "name": "STD",
+      "sizes": [
+        "SR9",
+        "SR17",
+        "SR20",
+        "SR18",
+        "SR26"
+      ],
+      "hasColor": false
     }
   ],
   "neckTypes": [
-    { "id": "flex", "name": "Flex", "price": 25, "code": "Flex" },
-    { "id": "sztywny", "name": "Sztywny", "price": 0, "code": "" }
+    {
+      "id": "flex",
+      "name": "Flex",
+      "price": 25,
+      "code": "Flex"
+    },
+    {
+      "id": "sztywny",
+      "name": "Sztywny",
+      "price": 0,
+      "code": ""
+    }
   ],
   "sizes": {
-    "SR9": { "name": "SR 9", "price": 90, "amperage": "do ~110A" },
-    "SR17": { "name": "SR 17", "price": 110, "amperage": "do ~140A" },
-    "SR26": { "name": "SR 26", "price": 140, "amperage": "do ~180A" },
-    "SR18": { "name": "SR 18", "price": 220, "amperage": "do ~320A" },
-    "SR20": { "name": "SR 20", "price": 190, "amperage": "do ~220A" }
+    "SR9": {
+      "name": "SR 9",
+      "price": 90,
+      "amperage": "do ~110A"
+    },
+    "SR17": {
+      "name": "SR 17",
+      "price": 110,
+      "amperage": "do ~140A"
+    },
+    "SR18": {
+      "name": "SR 18",
+      "price": 220,
+      "amperage": "do ~320A"
+    },
+    "SR20": {
+      "name": "SR 20",
+      "price": 190,
+      "amperage": "do ~220A"
+    },
+    "SR26": {
+      "name": "SR 26",
+      "price": 140,
+      "amperage": "do ~180A"
+    }
   },
   "lengths": [
-    { "m": 4, "price": 45 },
-    { "m": 6, "price": 65 },
-    { "m": 8, "price": 85 },
-    { "m": 10, "price": 105 },
-    { "m": 12, "price": 125 },
-    { "m": 14, "price": 145 },
-    { "m": 16, "price": 165 }
+    {
+      "m": 4,
+      "price": 45
+    },
+    {
+      "m": 6,
+      "price": 65
+    },
+    {
+      "m": 8,
+      "price": 85
+    },
+    {
+      "m": 10,
+      "price": 105
+    },
+    {
+      "m": 12,
+      "price": 125
+    },
+    {
+      "m": 14,
+      "price": 145
+    },
+    {
+      "m": 16,
+      "price": 165
+    }
   ],
   "covers": [
-    { "id": "guma", "name": "Guma", "pricePerMeter": 4.5, "code": "guma" },
-    { "id": "tekstyl", "name": "Tekstyl", "pricePerMeter": 2.8, "code": "tekstyl" }
+    {
+      "id": "guma",
+      "name": "Guma",
+      "hasColors": false,
+      "variants": [
+        {
+          "id": "std",
+          "name": "Standard",
+          "pricePerMeter": 4.5
+        },
+        {
+          "id": "swiss",
+          "name": "Swiss",
+          "pricePerMeter": 50
+        }
+      ]
+    },
+    {
+      "id": "tekstyl",
+      "name": "Tekstyl",
+      "hasColors": true,
+      "pricePerMeter": 2.8,
+      "colors": [
+        "szary",
+        "czarny",
+        "granatowy",
+        "czerwony",
+        "pomarańczowy"
+      ]
+    }
   ],
-  "coverColors": ["szary", "czarny", "fioletowy", "czerwony", "pomarańczowy", "niebieski"],
   "leathers": [
-    { "id": "naturalna", "name": "Naturalna", "price": 55, "code": "naturalna" },
-    { "id": "syntetyk", "name": "Syntetyczna", "price": 32, "code": "syntetyk" },
-    { "id": "brak", "name": "Bez skóry", "price": 0, "code": "brak" }
+    {
+      "id": "natural",
+      "name": "Naturalna",
+      "price": 55,
+      "colors": [
+        "czarna",
+        "czerwona"
+      ]
+    },
+    {
+      "id": "syntetyk",
+      "name": "Syntetyczna",
+      "price": 32,
+      "colors": [
+        "czarna",
+        "czerwona",
+        "zielona",
+        "fioletowa",
+        "niebieska",
+        "żółta",
+        "pomarańczowa",
+        "szara"
+      ]
+    },
+    {
+      "id": "brak",
+      "name": "Bez skóry",
+      "price": 0,
+      "colors": []
+    }
   ],
-  "leatherColors": ["czarna", "zielona", "szara", "fioletowa", "czerwona"],
   "machines": [
-    { "id": "kemppi7pin", "name": "Kemppi 7pin", "price": 38, "code": "kemppi 7pin" },
-    { "id": "kemppi4pin", "name": "Kemppi 4pin", "price": 38, "code": "kemppi 4pin" },
-    { "id": "fronius", "name": "Fronius", "price": 45, "code": "fronius" },
-    { "id": "esab", "name": "ESAB", "price": 40, "code": "esab" },
-    { "id": "lincoln", "name": "Lincoln", "price": 40, "code": "lincoln" },
-    { "id": "migatronic", "name": "Migatronic", "price": 42, "code": "migatronic" },
-    { "id": "ewm", "name": "EWM 5pin", "price": 40, "code": "ewm5pin" },
-    { "id": "9spa", "name": "Spartus 9spa", "price": 25, "code": "9spa" }
+    {
+      "id": "kemppi7pin",
+      "name": "Kemppi 7pin",
+      "price": 38,
+      "code": "kemppi 7pin"
+    },
+    {
+      "id": "kemppi5pin",
+      "name": "Kemppi 5pin",
+      "price": 38,
+      "code": "kemppi 5pin"
+    },
+    {
+      "id": "fronius",
+      "name": "Fronius",
+      "price": 45,
+      "code": "fronius"
+    },
+    {
+      "id": "esab",
+      "name": "ESAB",
+      "price": 40,
+      "code": "esab"
+    },
+    {
+      "id": "lincoln",
+      "name": "Lincoln",
+      "price": 40,
+      "code": "lincoln"
+    },
+    {
+      "id": "migatronic",
+      "name": "Migatronic",
+      "price": 42,
+      "code": "migatronic"
+    },
+    {
+      "id": "ewm",
+      "name": "EWM",
+      "price": 40,
+      "code": "ewm"
+    },
+    {
+      "id": "uniwersalna",
+      "name": "Uniwersalna / inna",
+      "price": 25,
+      "code": "uniwersalna"
+    }
   ]
 }
