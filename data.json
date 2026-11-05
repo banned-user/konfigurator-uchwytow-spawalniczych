@@ -4,14 +4,14 @@
   "coolingTypes": [
     {
       "id": "gazowy",
-      "name": "Gazowy (powietrzny)",
-      "description": "Chłodzenie gazem – prostsze, do średnich prądów",
+      "name": "Gazowy",
+      "description": "Chłodzenie gazem",
       "sizes": ["SR9", "SR17", "SR26"]
     },
     {
       "id": "wodny",
       "name": "Wodny",
-      "description": "Chłodzenie wodą – do wyższych prądów i intensywnej pracy",
+      "description": "Chłodzenie wodą",
       "sizes": ["SR18", "SR20"]
     }
   ],
@@ -36,24 +36,24 @@
     { "m": 16, "price": 165 }
   ],
   "covers": [
-    { "id": "guma", "name": "Guma", "pricePerMeter": 4.5, "code": "Sguma" },
-    { "id": "tekstyl", "name": "Tekstyl", "pricePerMeter": 2.8, "code": "Stekstyl" }
+    { "id": "guma", "name": "Guma", "pricePerMeter": 4.5, "code": "guma" },
+    { "id": "tekstyl", "name": "Tekstyl", "pricePerMeter": 2.8, "code": "tekstyl" }
   ],
-  "coverColors": ["szary", "czarny", "granatowy", "czerwony", "pomarańczowy"],
+  "coverColors": ["szary", "czarny", "fioletowy", "czerwony", "pomarańczowy", "niebieski"],
   "leathers": [
-    { "id": "natural", "name": "Naturalna", "price": 55, "code": "natural" },
+    { "id": "naturalna", "name": "Naturalna", "price": 55, "code": "naturalna" },
     { "id": "syntetyk", "name": "Syntetyczna", "price": 32, "code": "syntetyk" },
     { "id": "brak", "name": "Bez skóry", "price": 0, "code": "brak" }
   ],
-  "leatherColors": ["czarna", "brązowa", "szara", "beżowa", "czerwona"],
+  "leatherColors": ["czarna", "zielona", "szara", "fioletowa", "czerwona"],
   "machines": [
     { "id": "kemppi7pin", "name": "Kemppi 7pin", "price": 38, "code": "kemppi 7pin" },
-    { "id": "kemppi5pin", "name": "Kemppi 5pin", "price": 38, "code": "kemppi 5pin" },
+    { "id": "kemppi4pin", "name": "Kemppi 4pin", "price": 38, "code": "kemppi 5pin" },
     { "id": "fronius", "name": "Fronius", "price": 45, "code": "fronius" },
     { "id": "esab", "name": "ESAB", "price": 40, "code": "esab" },
     { "id": "lincoln", "name": "Lincoln", "price": 40, "code": "lincoln" },
     { "id": "migatronic", "name": "Migatronic", "price": 42, "code": "migatronic" },
     { "id": "ewm", "name": "EWM", "price": 40, "code": "ewm" },
-    { "id": "uniwersalna", "name": "Uniwersalna / inna", "price": 25, "code": "uniwersalna" }
+    { "id": "9spa", "name": "Spartus 9spa", "price": 25, "code": "9spa" }
   ]
 }
