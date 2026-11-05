@@ -125,13 +125,21 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     <button class="secondary" onclick="showOrders('todo')">Do realizacji (<span id="countTodo">0</span>)</button>
     <button class="secondary" onclick="showOrders('waiting')">W oczekiwaniu (<span id="countWaiting">0</span>)</button>
     <button class="secondary" onclick="showOrders('done')">Zrealizowane (<span id="countDone">0</span>)</button>
-    <button class="secondary" onclick="document.getElementById('fileInput').click()">Wczytaj bazę (JSON)</button>
-    <button class="secondary" onclick="exportData()">Eksportuj bazę</button>
-    <button class="secondary" onclick="resetDataCache()">Resetuj bazę</button>
-    <button class="secondary" onclick="exportOrders()">Eksportuj zamówienia</button>
-    <button class="secondary" onclick="document.getElementById('ordersFileInput').click()">Importuj zamówienia</button>
+    <button class="secondary" id="btnSettings" onclick="toggleSettings()">Ustawienia</button>
+  </div>
+
+  <div id="settingsPanel" style="display:none;margin-bottom:12px;padding:12px;background:#1a2332;border-radius:8px;border:1px solid var(--border)">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="secondary" onclick="document.getElementById('fileInput').click()">Wczytaj bazę (JSON)</button>
+      <button class="secondary" onclick="document.getElementById('csvInput').click()">Wczytaj bazę (CSV)</button>
+      <button class="secondary" onclick="exportData()">Eksportuj bazę</button>
+      <button class="secondary" onclick="resetDataCache()">Resetuj bazę</button>
+      <button class="secondary" onclick="exportOrders()">Eksportuj zamówienia</button>
+      <button class="secondary" onclick="document.getElementById('ordersFileInput').click()">Importuj zamówienia</button>
+    </div>
     <input type="file" id="ordersFileInput" accept=".json" style="display:none" onchange="importOrdersFile(this)">
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadDataFile(this)">
+    <input type="file" id="csvInput" accept=".csv,.txt" style="display:none" onchange="loadDataFromCSV(this)">
   </div>
 
   <div id="section-config" class="section">
@@ -227,6 +235,7 @@ function startAutoRefresh() {
   if (syncUrl) {
     autoRefreshTimer = setInterval(() => {
       loadFromCloud();
+      loadDataFromGitHub(); // odśwież też bazę produktów
     }, 1 * 60 * 1000); // co 1 minutę
   }
 }
@@ -343,6 +352,111 @@ function removeOrder(id) {
   saveToCloud();
 }
 
+function toggleSettings() {
+  const panel = document.getElementById('settingsPanel');
+  if (panel) {
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+function loadDataFromCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).filter(l => l.trim());
+      if (lines.length < 2) throw new Error('Plik CSV jest pusty lub nie ma nagłówka');
+
+      // Prosty parser CSV (obsługuje podstawowe przypadki)
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+      const rows = lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+        const obj = {};
+        headers.forEach((h, i) => { obj[h] = values[i] || ''; });
+        return obj;
+      });
+
+      // Mapowanie na strukturę bazy (przykładowe – dostosuj do swojego CSV)
+      // Oczekiwane kolumny: type, id, name, price, description, code, pricePerMeter, sizes
+      const newData = JSON.parse(JSON.stringify(DEFAULT_DATA)); // kopia domyślnej
+
+      rows.forEach(r => {
+        const type = (r.type || r.Type || '').toLowerCase();
+        if (type === 'cooling' || type === 'coolingtype') {
+          newData.coolingTypes.push({
+            id: r.id || r.Id || '',
+            name: r.name || r.Name || '',
+            description: r.description || r.Description || '',
+            sizes: (r.sizes || r.Sizes || '').split('|').map(s => s.trim()).filter(Boolean)
+          });
+        } else if (type === 'size') {
+          newData.sizes[r.id || r.Id] = {
+            name: r.name || r.Name || '',
+            price: Number(r.price || r.Price || 0),
+            amperage: r.amperage || r.Amperage || ''
+          };
+        } else if (type === 'cover') {
+          newData.covers.push({
+            id: r.id || r.Id || '',
+            name: r.name || r.Name || '',
+            pricePerMeter: Number(r.pricePerMeter || r.PricePerMeter || r.price || 0),
+            code: r.code || r.Code || ''
+          });
+        } else if (type === 'leather') {
+          newData.leathers.push({
+            id: r.id || r.Id || '',
+            name: r.name || r.Name || '',
+            price: Number(r.price || r.Price || 0),
+            code: r.code || r.Code || ''
+          });
+        } else if (type === 'machine') {
+          newData.machines.push({
+            id: r.id || r.Id || '',
+            name: r.name || r.Name || '',
+            price: Number(r.price || r.Price || 0),
+            code: r.code || r.Code || ''
+          });
+        }
+      });
+
+      data = newData;
+      localStorage.setItem('weldingData', JSON.stringify(data));
+      alert('Baza wczytana z CSV (' + rows.length + ' wierszy)');
+      currentStep = 0;
+      config = {};
+      renderProgress();
+      renderStep();
+    } catch (err) {
+      alert('Błąd wczytywania CSV: ' + err.message);
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+async function loadDataFromGitHub() {
+  const url = 'https://raw.githubusercontent.com/banned-user/konfigurator-uchwytow-spawalniczych/main/data.json';
+  try {
+    const res = await fetch(url + '?_=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const loaded = await res.json();
+    if (loaded && loaded.coolingTypes) {
+      data = loaded;
+      localStorage.setItem('weldingData', JSON.stringify(data));
+      const status = document.getElementById('syncStatus');
+      if (status) status.textContent = 'Baza zaktualizowana';
+      if (typeof renderStep === 'function') renderStep();
+      return true;
+    }
+  } catch (err) {
+    console.warn('Nie udało się wczytać bazy z GitHuba:', err.message);
+  }
+  return false;
+}
+
 function init() {
   data = JSON.parse(localStorage.getItem('weldingData') || 'null') || DEFAULT_DATA;
   orders.forEach(o => {
@@ -358,6 +472,9 @@ function init() {
   renderProgress();
   renderStep();
   document.getElementById('section-config').classList.add('active');
+
+  // Spróbuj od razu zaktualizować bazę z GitHuba
+  loadDataFromGitHub();
 }
 
 function showSection(name) {
