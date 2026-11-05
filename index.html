@@ -564,6 +564,9 @@ function jumpToStep(index) {
 }
 
 function renderStep() {
+  if (!data || !data.grips || !data.neckFamilies) {
+    data = DEFAULT_DATA;
+  }
   const step = STEPS[currentStep];
   const content = document.getElementById('stepContent');
   const btnNext = document.getElementById('btnNext');
@@ -583,13 +586,19 @@ function renderStep() {
   }
 
   // Skip steps that don't apply
-  if (step.id === 'neckColor' && !(data.neckFamilies.find(f => f.id === config.neckFamily)?.hasColor)) {
-    nextStep();
-    return;
+  if (step.id === 'neckColor') {
+    const fam = data.neckFamilies?.find(f => f.id === config.neckFamily);
+    if (!fam?.hasColor) {
+      nextStep();
+      return;
+    }
   }
-  if (step.id === 'coverVariant' && !(data.covers.find(c => c.id === config.cover)?.variants)) {
-    nextStep();
-    return;
+  if (step.id === 'coverVariant') {
+    const cover = data.covers?.find(c => c.id === config.cover);
+    if (!cover || (!cover.variants && !cover.colors)) {
+      nextStep();
+      return;
+    }
   }
   if (step.id === 'leatherColor' && config.leather === 'brak') {
     config.leatherColor = '';
@@ -691,8 +700,15 @@ function selectOption(stepId, value) {
 
 function isStepComplete() {
   const step = STEPS[currentStep];
-  if (step.id === 'neckColor' && !(data.neckFamilies.find(f => f.id === config.neckFamily)?.hasColor)) return true;
-  if (step.id === 'coverVariant' && !(data.covers.find(c => c.id === config.cover)?.variants || data.covers.find(c => c.id === config.cover)?.colors)) return true;
+  if (!data) return false;
+  if (step.id === 'neckColor') {
+    const fam = data.neckFamilies?.find(f => f.id === config.neckFamily);
+    if (!fam?.hasColor) return true;
+  }
+  if (step.id === 'coverVariant') {
+    const cover = data.covers?.find(c => c.id === config.cover);
+    if (!cover || (!cover.variants && !cover.colors)) return true;
+  }
   if (step.id === 'leatherColor' && config.leather === 'brak') return true;
   return config[step.id] !== undefined && config[step.id] !== null && config[step.id] !== '';
 }
