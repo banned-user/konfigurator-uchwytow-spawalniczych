@@ -125,6 +125,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     <button class="secondary" onclick="showOrders('todo')">Do realizacji (<span id="countTodo">0</span>)</button>
     <button class="secondary" onclick="showOrders('waiting')">W oczekiwaniu (<span id="countWaiting">0</span>)</button>
     <button class="secondary" onclick="showOrders('done')">Zrealizowane (<span id="countDone">0</span>)</button>
+    <button class="secondary" onclick="showOrders('archived')">Archiwalne (<span id="countArchived">0</span>)</button>
     <button class="secondary" id="btnSettings" onclick="toggleSettings()">Ustawienia</button>
   </div>
 
@@ -345,6 +346,10 @@ const DEFAULT_DATA = {
 };
 
 function removeOrder(id) {
+  const order = orders.find(o => o.id === id);
+  if (!order) return;
+  const code = order.code || 'to zamówienie';
+  if (!confirm(`Na pewno usunąć zamówienie?\n\n${code}\n\nTej operacji nie można cofnąć.`)) return;
   orders = orders.filter(o => o.id !== id);
   localStorage.setItem('weldingOrders', JSON.stringify(orders));
   updateOrdersCount();
@@ -489,12 +494,14 @@ function showOrders(view) {
   const titles = {
     todo: 'Do realizacji',
     waiting: 'W oczekiwaniu',
-    done: 'Zrealizowane'
+    done: 'Zrealizowane',
+    archived: 'Archiwalne'
   };
   const subtitles = {
     todo: 'Gotowe do produkcji',
     waiting: 'Oczekujące na potwierdzenie / materiały',
-    done: 'Zrealizowane zamówienia'
+    done: 'Zrealizowane zamówienia',
+    archived: 'Archiwum – szukaj po kliencie'
   };
   document.getElementById('ordersTitle').textContent = titles[view] || 'Zamówienia';
   document.getElementById('ordersSubtitle').textContent = subtitles[view] || '';
@@ -505,9 +512,12 @@ function updateOrdersCount() {
   const todo = orders.filter(o => o.status === 'todo').length;
   const waiting = orders.filter(o => o.status === 'waiting').length;
   const done = orders.filter(o => o.status === 'done').length;
+  const archived = orders.filter(o => o.status === 'archived').length;
   document.getElementById('countTodo').textContent = todo;
   document.getElementById('countWaiting').textContent = waiting;
   document.getElementById('countDone').textContent = done;
+  const el = document.getElementById('countArchived');
+  if (el) el.textContent = archived;
 }
 
 function renderProgress() {
@@ -707,6 +717,8 @@ function renderSummary(content) {
   html += '<div class="product-code" id="productCode">' + code + '</div>';
   html += '<div class="total">Cena: ' + price + ' ' + (data.currency || 'zł') + '</div>';
   html += '<div style="margin-top:20px">';
+  html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Nazwa własna (opcjonalnie)</label>';
+  html += '<input type="text" id="customName" placeholder="np. dla klienta X, specjalna wersja..." style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);margin-bottom:12px">';
   html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Nazwa klienta</label>';
   html += '<input type="text" id="customerName" placeholder="Imię i nazwisko / firma" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);margin-bottom:12px">';
   html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Telefon</label>';
@@ -732,6 +744,7 @@ function saveOrder(status) {
     code: generateCode(),
     price: calculatePrice(),
     status: status,
+    customName: document.getElementById('customName')?.value || '',
     customerName: document.getElementById('customerName')?.value || '',
     customerPhone: document.getElementById('customerPhone')?.value || '',
     notes: document.getElementById('orderNotes')?.value || '',
@@ -752,12 +765,30 @@ function saveOrder(status) {
 
 function renderOrders() {
   const list = document.getElementById('ordersList');
-  const filtered = orders.filter(o => o.status === currentOrdersView);
+  let filtered = orders.filter(o => o.status === currentOrdersView);
+
+  // Search box for archive
+  let searchHtml = '';
+  if (currentOrdersView === 'archived') {
+    searchHtml = `<div style="margin-bottom:12px"><input type="text" id="archiveSearch" placeholder="Szukaj po kliencie, telefonie, nazwie własnej..." style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text)" oninput="renderOrders()"></div>`;
+    const q = (document.getElementById('archiveSearch')?.value || '').toLowerCase().trim();
+    if (q) {
+      filtered = filtered.filter(o =>
+        (o.customerName || '').toLowerCase().includes(q) ||
+        (o.customerPhone || '').toLowerCase().includes(q) ||
+        (o.customName || '').toLowerCase().includes(q) ||
+        (o.code || '').toLowerCase().includes(q) ||
+        (o.notes || '').toLowerCase().includes(q)
+      );
+    }
+  }
+
   if (filtered.length === 0) {
-    list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0">Brak zamówień w tej kategorii</p>';
+    list.innerHTML = searchHtml + '<p style="color:var(--muted);text-align:center;padding:40px 0">Brak zamówień w tej kategorii</p>';
     return;
   }
-  list.innerHTML = filtered.map(o => {
+
+  list.innerHTML = searchHtml + filtered.map(o => {
     let actions = '';
     if (currentOrdersView === 'todo') {
       actions = `<button class="success" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'done')">Zrealizowano</button>
@@ -765,12 +796,16 @@ function renderOrders() {
     } else if (currentOrdersView === 'waiting') {
       actions = `<button class="success" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'todo')">Do realizacji</button>
                  <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'done')">Zrealizowano</button>`;
-    } else {
-      actions = `<button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'todo')">Przywróć</button>`;
+    } else if (currentOrdersView === 'done') {
+      actions = `<button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'archived')">Archiwizuj</button>
+                 <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'todo')">Przywróć</button>`;
+    } else if (currentOrdersView === 'archived') {
+      actions = `<button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="changeStatus(${o.id}, 'done')">Przywróć</button>`;
     }
     const detailsId = 'details-' + o.id;
     return `<div class="order">
       <div class="code">${o.code}</div>
+      ${o.customName ? `<div style="margin-top:2px;font-weight:600">${o.customName}</div>` : ''}
       ${o.customerName ? `<div style="margin-top:4px">${o.customerName}${o.customerPhone ? ' · ' + o.customerPhone : ''}</div>` : ''}
       ${o.notes ? `<div style="margin-top:4px;color:var(--muted);font-size:0.9rem">${o.notes}</div>` : ''}
       <div class="meta">${o.date} · ${o.price} zł</div>
@@ -801,6 +836,7 @@ function renderOrderDetails(o) {
   const machine = data.machines.find(x => x.id === c.machine)?.name || '-';
   return `
     <div class="summary" style="font-size:0.95rem">
+      ${o.customName ? `<div class="row"><span>Nazwa własna</span><span>${o.customName}</span></div>` : ''}
       <div class="row"><span>Typ</span><span>${cooling}</span></div>
       <div class="row"><span>Fajka</span><span>${neck}</span></div>
       <div class="row"><span>Rozmiar</span><span>${size}</span></div>
@@ -825,7 +861,7 @@ function changeStatus(id, newStatus) {
 }
 
 function clearCurrentOrders() {
-  const viewName = { todo: 'do realizacji', waiting: 'w oczekiwaniu', done: 'zrealizowane' }[currentOrdersView];
+  const viewName = { todo: 'do realizacji', waiting: 'w oczekiwaniu', done: 'zrealizowane', archived: 'archiwalne' }[currentOrdersView];
   if (confirm(`Na pewno wyczyścić listę „${viewName}”?`)) {
     orders = orders.filter(o => o.status !== currentOrdersView);
     localStorage.setItem('weldingOrders', JSON.stringify(orders));
