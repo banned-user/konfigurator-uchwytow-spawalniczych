@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Konfigurator</title>
+<title>Konfigurator Uchwyty Spawalnicze</title>
 <style>
 :root {
   --bg: #0f1419;
@@ -122,8 +122,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
   <div class="header-actions">
     <button class="secondary" onclick="showSection('config')">Konfigurator</button>
-    <button class="secondary" onclick="showOrders('todo')">Do realizacji (<span id="countTodo">0</span>)</button>
     <button class="secondary" onclick="showOrders('waiting')">W oczekiwaniu (<span id="countWaiting">0</span>)</button>
+    <button class="secondary" onclick="showOrders('todo')">Do realizacji (<span id="countTodo">0</span>)</button>
     <button class="secondary" onclick="showOrders('done')">Zrealizowane (<span id="countDone">0</span>)</button>
     <button class="secondary" onclick="showOrders('archived')">Archiwalne (<span id="countArchived">0</span>)</button>
     <button class="secondary" id="btnSettings" onclick="toggleSettings()">Ustawienia</button>
@@ -272,7 +272,12 @@ async function loadFromCloud() {
       orders = loaded;
       localStorage.setItem('weldingOrders', JSON.stringify(orders));
       updateOrdersCount();
-      if (!document.getElementById('section-orders').classList.contains('hidden')) renderOrders();
+      // Nie nadpisuj formularza konfiguratora, jeśli użytkownik właśnie coś wpisuje
+      const onConfig = !document.getElementById('section-config').classList.contains('hidden');
+      const onSummary = currentStep === STEPS.length - 1;
+      if (!onConfig || !onSummary) {
+        if (!document.getElementById('section-orders').classList.contains('hidden')) renderOrders();
+      }
       document.getElementById('syncStatus').textContent = 'Zsynchronizowano (' + orders.length + ')';
     } else {
       throw new Error('Niepoprawny format danych');
@@ -811,6 +816,7 @@ function renderOrders() {
       <div class="meta">${o.date} · ${o.price} zł</div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
         <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="toggleDetails('${detailsId}')">Podgląd</button>
+        <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="editOrder(${o.id})">Edytuj</button>
         ${actions}
         <button class="danger" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="removeOrder(${o.id})">Usuń</button>
       </div>
@@ -849,7 +855,36 @@ function renderOrderDetails(o) {
   `;
 }
 
-function changeStatus(id, newStatus) {
+function editOrder(id) {
+  const order = orders.find(o => o.id === id);
+  if (!order) return;
+  if (!confirm('Załadować to zamówienie do konfiguratora do edycji?\n\nAktualna konfiguracja zostanie zastąpiona.')) return;
+
+  // Usuń stare zamówienie (zostanie zapisane na nowo po edycji)
+  orders = orders.filter(o => o.id !== id);
+  localStorage.setItem('weldingOrders', JSON.stringify(orders));
+  updateOrdersCount();
+  saveToCloud();
+
+  // Załaduj konfigurację
+  config = { ...(order.config || {}) };
+  currentStep = STEPS.length - 1; // od razu na podsumowanie
+  showSection('config');
+  renderProgress();
+  renderStep();
+
+  // Uzupełnij pola po wyrenderowaniu
+  setTimeout(() => {
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && val) el.value = val;
+    };
+    setVal('customName', order.customName);
+    setVal('customerName', order.customerName);
+    setVal('customerPhone', order.customerPhone);
+    setVal('orderNotes', order.notes);
+  }, 50);
+}
   const order = orders.find(o => o.id === id);
   if (order) {
     order.status = newStatus;
