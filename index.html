@@ -528,8 +528,16 @@ function updateOrdersCount() {
 function renderProgress() {
   const el = document.getElementById('progress');
   el.innerHTML = STEPS.map((s, i) =>
-    `<div class="step ${i === currentStep ? 'active' : ''} ${i < currentStep ? 'done' : ''}">${s.title}</div>`
+    `<div class="step ${i === currentStep ? 'active' : ''} ${i < currentStep ? 'done' : ''}" onclick="jumpToStep(${i})" style="cursor:pointer">${s.title}</div>`
   ).join('');
+}
+
+function jumpToStep(index) {
+  if (index >= 0 && index < STEPS.length) {
+    currentStep = index;
+    renderProgress();
+    renderStep();
+  }
 }
 
 function renderStep() {
@@ -744,6 +752,32 @@ function row(label, value) {
 }
 
 function saveOrder(status) {
+  // Sprawdź, czy wszystkie wymagane kroki są uzupełnione
+  const missing = [];
+  STEPS.forEach((s, i) => {
+    if (s.id === 'summary') return;
+    if (s.id === 'leatherColor' && config.leather === 'brak') return;
+    const val = config[s.id];
+    if (val === undefined || val === null || val === '') {
+      missing.push({ step: s, index: i });
+    }
+  });
+
+  if (missing.length > 0) {
+    // Podświetl brakujące kafelki na czerwono
+    document.querySelectorAll('.progress .step').forEach((el, idx) => {
+      const isMissing = missing.some(m => m.index === idx);
+      if (isMissing) {
+        el.style.background = '#7f1d1d';
+        el.style.color = '#fecaca';
+        el.style.borderColor = '#ef4444';
+      }
+    });
+    const names = missing.map(m => m.step.title).join(', ');
+    alert('Wybierz wariant w kafelkach:\n\n' + names);
+    return;
+  }
+
   const order = {
     id: Date.now(),
     code: generateCode(),
