@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
@@ -885,6 +885,8 @@ function editOrder(id) {
     setVal('orderNotes', order.notes);
   }, 50);
 }
+
+function changeStatus(id, newStatus) {
   const order = orders.find(o => o.id === id);
   if (order) {
     order.status = newStatus;
@@ -986,4 +988,4 @@ function resetDataCache() {
 init();
 </script>
 </body>
-  </html>
+</html>
