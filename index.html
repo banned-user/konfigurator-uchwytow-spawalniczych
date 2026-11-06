@@ -124,9 +124,12 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   </div>
 </div>
 <div class="container" id="mainApp" style="display:none">
-  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
-    <button class="secondary" style="flex:none;padding:8px 14px;font-size:0.9rem" onclick="loadFromCloud()">Odśwież</button>
-    <span id="syncStatus" style="font-size:0.85rem;color:var(--accent2)"></span>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;justify-content:space-between">
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="secondary" style="flex:none;padding:8px 14px;font-size:0.9rem" onclick="loadFromCloud()">Odśwież zamówienia</button>
+      <span id="syncStatus" style="font-size:0.85rem;color:var(--accent2)"></span>
+    </div>
+    <span id="dataInfo" style="font-size:0.8rem;color:var(--muted);font-family:monospace"></span>
   </div>
 
   <div class="header-actions">
@@ -141,7 +144,6 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   <div id="settingsPanel" style="display:none;margin-bottom:12px;padding:12px;background:#1a2332;border-radius:8px;border:1px solid var(--border)">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <button class="secondary" onclick="loadDataFromGitHub()">Odśwież bazę z GitHuba</button>
-      <button class="secondary" onclick="localStorage.removeItem('weldingData'); location.reload();">Wyczyść cache bazy</button>
       <span id="dataStatus" style="font-size:0.85rem;color:var(--accent2)"></span>
     </div>
   </div>
@@ -188,6 +190,7 @@ function checkPassword() {
 if (sessionStorage.getItem('auth') === '1') {
   document.getElementById('passwordGate').style.display = 'none';
   document.getElementById('mainApp').style.display = 'block';
+  if (typeof init === 'function') init();
 }
 
 const STEPS = [
@@ -393,8 +396,7 @@ function removeOrder(id) {
 }
 
 function init() {
-  const saved = localStorage.getItem('weldingData');
-  data = saved ? JSON.parse(saved) : DEFAULT_DATA;
+  data = DEFAULT_DATA;
   orders.forEach(o => {
     if (!o.status) o.status = 'todo';
   });
@@ -407,11 +409,15 @@ function init() {
   renderProgress();
   renderStep();
   document.getElementById('section-config').classList.add('active');
+  // Baza zawsze z GitHuba przy starcie
+  loadDataFromGitHub();
 }
 
 async function loadDataFromGitHub() {
   const statusEl = document.getElementById('dataStatus');
-  if (statusEl) statusEl.textContent = 'Ładowanie...';
+  const infoEl = document.getElementById('dataInfo');
+  if (statusEl) statusEl.textContent = 'Ładowanie bazy...';
+  if (infoEl) infoEl.textContent = 'data_ładowanie...';
 
   const urls = [
     'https://raw.githubusercontent.com/banned-user/konfigurator-uchwytow-spawalniczych/main/data.json',
@@ -429,10 +435,19 @@ async function loadDataFromGitHub() {
       const loaded = await res.json();
       if (loaded && loaded.grips && loaded.neckFamilies) {
         data = loaded;
-        localStorage.setItem('weldingData', JSON.stringify(data));
-        if (statusEl) statusEl.textContent = 'Baza zaktualizowana (' + (loaded.basePrice || '?') + ' zł)';
+        // Data z nagłówka Last-Modified lub aktualny czas
+        let stamp = 'nieznana';
+        const lm = res.headers.get('last-modified');
+        if (lm) {
+          const d = new Date(lm);
+          stamp = d.toISOString().replace('T', '_').slice(0, 16);
+        } else {
+          const d = new Date();
+          stamp = d.toISOString().replace('T', '_').slice(0, 16);
+        }
+        if (infoEl) infoEl.textContent = 'data_' + stamp;
+        if (statusEl) statusEl.textContent = 'Baza OK';
         if (typeof renderStep === 'function') renderStep();
-        alert('Baza wczytana. Cena bazowa: ' + (loaded.basePrice || '?') + ' zł');
         return true;
       } else {
         throw new Error('Niepoprawny format bazy');
@@ -443,8 +458,9 @@ async function loadDataFromGitHub() {
     }
   }
 
-  if (statusEl) statusEl.textContent = 'Błąd: ' + (lastErr?.message || 'nieznany');
-  alert('Nie udało się wczytać bazy: ' + (lastErr?.message || 'nieznany błąd'));
+  if (statusEl) statusEl.textContent = 'Błąd bazy';
+  if (infoEl) infoEl.textContent = 'data_błąd';
+  console.warn(lastErr);
   return false;
 }
 
