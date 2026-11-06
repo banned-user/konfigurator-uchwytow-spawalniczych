@@ -141,6 +141,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   <div id="settingsPanel" style="display:none;margin-bottom:12px;padding:12px;background:#1a2332;border-radius:8px;border:1px solid var(--border)">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <button class="secondary" onclick="loadDataFromGitHub()">Odśwież bazę z GitHuba</button>
+      <button class="secondary" onclick="localStorage.removeItem('weldingData'); location.reload();">Wyczyść cache bazy</button>
       <span id="dataStatus" style="font-size:0.85rem;color:var(--accent2)"></span>
     </div>
   </div>
@@ -411,28 +412,39 @@ function init() {
 async function loadDataFromGitHub() {
   const statusEl = document.getElementById('dataStatus');
   if (statusEl) statusEl.textContent = 'Ładowanie...';
-  const url = 'https://cdn.jsdelivr.net/gh/banned-user/konfigurator-uchwytow-spawalniczych@main/data.json';
-  try {
-    const res = await fetch(url + '?nocache=' + Date.now() + Math.random(), {
-      cache: 'no-store'
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const loaded = await res.json();
-    if (loaded && loaded.grips && loaded.neckFamilies) {
-      data = loaded;
-      localStorage.setItem('weldingData', JSON.stringify(data));
-      if (statusEl) statusEl.textContent = 'Baza zaktualizowana';
-      if (typeof renderStep === 'function') renderStep();
-      alert('Baza z GitHuba wczytana.');
-      return true;
-    } else {
-      throw new Error('Niepoprawny format bazy');
+
+  const urls = [
+    'https://raw.githubusercontent.com/banned-user/konfigurator-uchwytow-spawalniczych/main/data.json',
+    'https://cdn.jsdelivr.net/gh/banned-user/konfigurator-uchwytow-spawalniczych@main/data.json'
+  ];
+
+  let lastErr = null;
+  for (const base of urls) {
+    try {
+      const res = await fetch(base + '?t=' + Date.now() + Math.random(), {
+        cache: 'no-store',
+        mode: 'cors'
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const loaded = await res.json();
+      if (loaded && loaded.grips && loaded.neckFamilies) {
+        data = loaded;
+        localStorage.setItem('weldingData', JSON.stringify(data));
+        if (statusEl) statusEl.textContent = 'Baza zaktualizowana (' + (loaded.basePrice || '?') + ' zł)';
+        if (typeof renderStep === 'function') renderStep();
+        alert('Baza wczytana. Cena bazowa: ' + (loaded.basePrice || '?') + ' zł');
+        return true;
+      } else {
+        throw new Error('Niepoprawny format bazy');
+      }
+    } catch (err) {
+      lastErr = err;
+      console.warn('Próba nieudana:', base, err.message);
     }
-  } catch (err) {
-    if (statusEl) statusEl.textContent = 'Błąd: ' + err.message;
-    alert('Nie udało się wczytać bazy: ' + err.message);
-    console.warn(err);
   }
+
+  if (statusEl) statusEl.textContent = 'Błąd: ' + (lastErr?.message || 'nieznany');
+  alert('Nie udało się wczytać bazy: ' + (lastErr?.message || 'nieznany błąd'));
   return false;
 }
 
