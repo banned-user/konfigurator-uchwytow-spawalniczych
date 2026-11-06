@@ -548,7 +548,7 @@ function renderStep(forceShow) {
   const btnBack = document.getElementById('btnBack');
   btnBack.disabled = currentStep === 0;
   btnNext.disabled = !isStepComplete();
-  btnNext.textContent = currentStep === STEPS.length - 1 ? 'Podsumowanie' : 'Dalej';
+  btnNext.textContent = currentStep >= STEPS.length - 2 ? 'Podsumowanie' : 'Dalej';
   if (currentStep === STEPS.length - 1) {
     btnNext.style.display = 'none';
   } else {
@@ -738,6 +738,7 @@ function selectOption(stepId, value) {
 function isStepComplete() {
   const step = STEPS[currentStep];
   if (!data) return false;
+  if (step.id === 'summary') return true;
   if (step.id === 'neckColor') {
     const fam = data.neckFamilies?.find(f => f.id === config.neckFamily);
     if (!fam?.hasColor) return true;
@@ -745,6 +746,7 @@ function isStepComplete() {
   if (step.id === 'coverVariant') {
     const cover = data.covers?.find(c => c.id === config.cover);
     if (!cover || (!cover.variants && !cover.colors)) return true;
+    return !!config.coverVariant;
   }
   if (step.id === 'leatherColor' && (config.leather === 'brak' || config.leather === 'Bez_skóry')) return true;
   return config[step.id] !== undefined && config[step.id] !== null && config[step.id] !== '';
@@ -754,6 +756,9 @@ function nextStep() {
   if (currentStep < STEPS.length - 1) {
     currentStep++;
     renderProgress();
+    renderStep();
+  } else if (currentStep === STEPS.length - 1) {
+    // Już na podsumowaniu
     renderStep();
   }
 }
@@ -800,8 +805,6 @@ function calculatePrice() {
 
   const leather = data.leathers.find(l => l.id === config.leather);
   if (leather) total += leather.price || 0;
-  const machine = data.machines.find(m => m.id === config.machine);
-  if (machine) total += machine.price || 0;
   return Math.round(total);
 }
 
