@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Konfigurator</title>
+<title>Konfigurator Uchwyty Spawalnicze</title>
 <style>
 :root {
   --bg: #0f1419;
@@ -144,14 +144,14 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
   <div id="settingsPanel" style="display:none;margin-bottom:12px;padding:12px;background:#1a2332;border-radius:8px;border:1px solid var(--border)">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <button class="secondary" onclick="loadDataFromGitHub()">Odśwież bazę</button>
+      <button class="secondary" onclick="loadDataFromGitHub()">Odśwież bazę z GitHuba</button>
       <span id="dataStatus" style="font-size:0.85rem;color:var(--accent2)"></span>
     </div>
   </div>
 
   <div id="section-config" class="section">
-    <h1>Konfigurator</h1>
-    <p class="subtitle">Wybierz krok po kroku</p>
+    <h1>Konfigurator uchwytów spawalniczych</h1>
+    <p class="subtitle">Wybierz krok po kroku – gotowy kod do realizacji na końcu</p>
     <div class="progress" id="progress"></div>
     <div class="card" id="stepContent"></div>
     <div class="nav">
@@ -196,18 +196,19 @@ if (sessionStorage.getItem('auth') === '1') {
 }
 
 const STEPS = [
+  { id: 'machine', title: 'Maszyna' },
+  { id: 'controlPlug', title: 'Wtyczka sterowania' },
   { id: 'cooling', title: 'Typ uchwytu' },
-  { id: 'grip', title: 'Rękojeść' },
-  { id: 'neckFamily', title: 'Rodzaj Fajki' },
-  { id: 'size', title: 'Rozmiar SR' },
-  { id: 'neck', title: 'Fajka Flex/Sztywna' },
-  { id: 'neckColor', title: 'Kolor Fajki' },
   { id: 'length', title: 'Długość' },
-  { id: 'cover', title: 'Osłona' },
-  { id: 'coverVariant', title: 'Kolor osłony' },
+  { id: 'grip', title: 'Rękojeść' },
+  { id: 'neckFamily', title: 'Rodzaj fajki' },
+  { id: 'size', title: 'Rozmiar SR' },
+  { id: 'neck', title: 'Flex / Sztywna' },
+  { id: 'neckColor', title: 'Kolor fajki' },
   { id: 'leather', title: 'Skóra' },
   { id: 'leatherColor', title: 'Kolor skóry' },
-  { id: 'machine', title: 'Maszyna' },
+  { id: 'cover', title: 'Osłona' },
+  { id: 'coverVariant', title: 'Kolor / Wariant osłony' },
   { id: 'summary', title: 'Podsumowanie' }
 ];
 
@@ -223,16 +224,21 @@ let knownOrderIds = new Set();
 function playNotificationSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    osc.type = 'sine';
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.4);
+    const beep = (startTime) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 1200;
+      osc.type = 'square';
+      gain.gain.setValueAtTime(0.4, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.25);
+      osc.start(startTime);
+      osc.stop(startTime + 0.25);
+    };
+    beep(ctx.currentTime);
+    beep(ctx.currentTime + 0.35);
+    beep(ctx.currentTime + 0.7);
   } catch (e) {}
 }
 
@@ -378,18 +384,18 @@ const DEFAULT_DATA = {
     { "id": "brak", "name": "Bez skóry", "price": 0, "colors": [] }
   ],
   "machines": [
-    { "id": "kemppi7pin", "name": "Kemppi 7pin", "price": 38, "code": "kemppi 7pin" },
-    { "id": "kemppi5pin", "name": "Kemppi 5pin", "price": 38, "code": "kemppi 5pin" },
-    { "id": "fronius", "name": "Fronius", "price": 45, "code": "fronius" },
-    { "id": "esab", "name": "ESAB", "price": 40, "code": "esab" },
-    { "id": "lincoln", "name": "Lincoln", "price": 40, "code": "lincoln" },
-    { "id": "migatronic", "name": "Migatronic", "price": 42, "code": "migatronic" },
-    { "id": "ewm", "name": "EWM", "price": 40, "code": "ewm" },
-    { "id": "uniwersalna", "name": "Uniwersalna / inna", "price": 25, "code": "uniwersalna" }
-  ]
+    { "id": "9SPA_Szyb-21", "name": "9SPA_Szyb-21", "price": 50, "code": "9SPA_Szyb-21", "unsupportedGrips": ["Grip3b", "GripPot"] },
+    { "id": "Kemppi_7pin", "name": "Kemppi_7pin", "price": 80, "code": "Kemppi_7pin" }
+  ],
+  "controlPlugs": [
+    { "id": "9SPA_8-9", "name": "9SPA 8-9", "pins": "8-9", "machines": ["9SPA_Szyb-21", "9SPA_M12"] },
+    { "id": "EWM_A-B", "name": "EWM A-B", "pins": "A-B", "machines": ["EWM_5pin"] },
+    { "id": "EWM_1-2-3", "name": "EWM 1-2-3", "pins": "1-2-3", "machines": ["EWM_8pin"] }
+  ],
 };
 
 function removeOrder(id) {
+  if (!confirm('Na pewno usunąć to zamówienie?')) return;
   orders = orders.filter(o => o.id !== id);
   localStorage.setItem('weldingOrders', JSON.stringify(orders));
   updateOrdersCount();
@@ -496,15 +502,30 @@ function updateOrdersCount() {
 function renderProgress() {
   const el = document.getElementById('progress');
   el.innerHTML = STEPS.map((s, i) => {
-    const done = i < currentStep;
     const active = i === currentStep;
-    const incomplete = active && !isStepComplete();
+    const selected = config[s.id] !== undefined && config[s.id] !== null && config[s.id] !== '';
+    const skipped = !selected && i < currentStep && !isStepRequired(s.id);
     let cls = 'step';
     if (active) cls += ' active';
-    if (done) cls += ' done';
-    if (incomplete) cls += ' incomplete';
+    if (selected) cls += ' done';
+    if (skipped) cls += ' incomplete';
     return `<div class="${cls}" onclick="jumpToStep(${i})" style="cursor:pointer">${s.title}</div>`;
   }).join('');
+}
+
+function isStepRequired(stepId) {
+  if (stepId === 'neckColor') {
+    const fam = data?.neckFamilies?.find(f => f.id === config.neckFamily);
+    return !!(fam && fam.hasColor);
+  }
+  if (stepId === 'coverVariant') {
+    const cover = data?.covers?.find(c => c.id === config.cover);
+    return !!(cover && (cover.variants || cover.colors));
+  }
+  if (stepId === 'leatherColor') {
+    return config.leather && config.leather !== 'Bez_skóry' && config.leather !== 'brak';
+  }
+  return true;
 }
 
 function jumpToStep(index) {
@@ -557,12 +578,29 @@ function renderStep(forceShow) {
   let html = `<h2 style="margin-bottom:16px">${step.title}</h2>`;
   html += '<div class="options">';
 
-  if (step.id === 'cooling') {
+  if (step.id === 'machine') {
+    data.machines.forEach(m => {
+      html += optionHTML(m.id, m.name, `+${m.price} ${data.currency}`, config.machine === m.id);
+    });
+  } else if (step.id === 'controlPlug') {
+    // Wtyczki sterowania – przypisane do maszyny
+    const plugs = data.controlPlugs || [];
+    const machinePlugs = plugs.filter(p => !p.machines || p.machines.includes(config.machine));
+    if (machinePlugs.length === 0) {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak wtyczek dla tej maszyny</p>';
+    }
+    machinePlugs.forEach(p => {
+      html += optionHTML(p.id, p.name + (p.pins ? ' (' + p.pins + ')' : ''), '', config.controlPlug === p.id);
+    });
+  } else if (step.id === 'cooling') {
     data.coolingTypes.forEach(t => {
       html += optionHTML(t.id, t.name, t.description || '', config.cooling === t.id);
     });
   } else if (step.id === 'grip') {
     data.grips.forEach(g => {
+      // Wykluczenia rękojeści zależne od maszyny
+      const machine = data.machines.find(m => m.id === config.machine);
+      if (machine && machine.unsupportedGrips && machine.unsupportedGrips.includes(g.id)) return;
       // Cybergrip nie dla wodnego i nie dla SR18/SR20/SR26
       if ((g.id === 'Cybergrip' || g.id === 'cybergrip') && (config.cooling === 'Wodny' || config.cooling === 'wodny')) return;
       const size = config.size;
@@ -599,7 +637,7 @@ function renderStep(forceShow) {
   } else if (step.id === 'neckColor') {
     const colors = data.neckFamilies.find(f => f.id === config.neckFamily)?.colors || [];
     if (colors.length === 0) {
-      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Ten rodzaj fajki nie ma kolorów</p>';
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Ta rodzina fajki nie ma kolorów</p>';
     }
     colors.forEach(col => {
       html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.neckColor === col);
@@ -794,14 +832,14 @@ function renderSummary(content) {
   html += '<div class="summary">';
   html += row('Typ', data.coolingTypes.find(c => c.id === config.cooling)?.name || '-');
   html += row('Rękojeść', data.grips.find(g => g.id === config.grip)?.name || '-');
-  html += row('Rodzaj fajki', data.neckFamilies.find(f => f.id === config.neckFamily)?.name || '-');
+  html += row('Rodzina fajki', data.neckFamilies.find(f => f.id === config.neckFamily)?.name || '-');
   html += row('Rozmiar', data.sizes[config.size]?.name || '-');
   html += row('Fajka', data.neckTypes.find(n => n.id === config.neck)?.name || '-');
   if (config.neckColor) html += row('Kolor fajki', config.neckColor);
   html += row('Długość', (config.length || '-') + ' m');
   const cover = data.covers.find(c => c.id === config.cover);
   html += row('Osłona', cover?.name || '-');
-  if (config.coverVariant) html += row('Kolor osłony', config.coverVariant);
+  if (config.coverVariant) html += row('Wariant osłony', config.coverVariant);
   html += row('Skóra', data.leathers.find(l => l.id === config.leather)?.name || '-');
   if (config.leather !== 'brak' && config.leatherColor) html += row('Kolor skóry', config.leatherColor);
   html += row('Maszyna', data.machines.find(m => m.id === config.machine)?.name || '-');
