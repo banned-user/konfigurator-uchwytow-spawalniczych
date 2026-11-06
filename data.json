@@ -45,10 +45,10 @@
       ],
       "hasColor": true,
       "colors": [
-        "zielony",
-        "fioletowy",
-        "czerwony",
-        "pomarańczowy"
+        "Zielony",
+        "Fioletowy",
+        "Czerwony",
+        "Pomarańczowy"
       ]
     },
     {
@@ -167,12 +167,12 @@
       "hasColors": true,
       "pricePerMeter": 15,
       "colors": [
-        "szary",
-        "czarny",
-        "niebieski",
-        "czerwony",
-        "zielony",
-        "pomarańczowy"
+        "Szary",
+        "Czarny",
+        "Niebieski",
+        "Czerwony",
+        "Zielony",
+        "Pomarańczowy"
        ]
       },
       {
@@ -181,10 +181,10 @@
       "hasColors": true,
       "pricePerMeter": 10,
       "colors": [
-        "zielony",
-        "czerwony",
-        "pomarańczowy",
-        "moro"
+        "Zielony",
+        "Czerwony",
+        "Pomarańczowy",
+        "Moro"
       ]
     }
   ],
@@ -194,8 +194,8 @@
       "name": "Naturalna",
       "price": 100,
       "colors": [
-        "czarna",
-        "czerwona"
+        "Czarna",
+        "Czerwona"
       ]
     },
     {
@@ -203,14 +203,14 @@
       "name": "Syntetyczna",
       "price": 50,
       "colors": [
-        "czarna",
-        "czerwona",
-        "zielona",
-        "fioletowa",
-        "niebieska",
-        "żółta",
-        "pomarańczowa",
-        "szara"
+        "Czarna",
+        "Czerwona",
+        "Zielona",
+        "Fioletowa",
+        "Niebieska",
+        "Żółta",
+        "Pomarańczowa",
+        "Szara"
       ]
     },
     {
