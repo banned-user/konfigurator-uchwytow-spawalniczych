@@ -67,22 +67,22 @@
       "sizes": [
         "SR9",
         "SR17",
+        "SR26",
         "SR20",
-        "SR18",
-        "SR26"
+        "SR18"
       ],
       "hasColor": false
     }
   ],
   "neckTypes": [
     {
-      "id": "flex",
+      "id": "Flex",
       "name": "Flex",
       "price": 25,
       "code": "Flex"
     },
     {
-      "id": "sztywny",
+      "id": "Sztywny",
       "name": "Sztywny",
       "price": 0,
       "code": ""
@@ -98,47 +98,49 @@
       "name": "SR 17",
       "price": 110,
       "amperage": "do ~160A"
-    },
-    "SR18": {
-      "name": "SR 18",
-      "price": 220,
-      "amperage": "do ~320A"
-    },
+       },
+    "SR26": {
+      "name": "SR 26",
+      "price": 140,
+      "amperage": "do ~180A"
+      },
     "SR20": {
       "name": "SR 20",
       "price": 190,
       "amperage": "do ~220A"
     },
-    "SR26": {
-      "name": "SR 26",
-      "price": 140,
-      "amperage": "do ~180A"
+    "SR18": {
+      "name": "SR 18",
+      "price": 220,
+      "amperage": "do ~320A"
+    
+   
     }
   },
   "lengths": [
     {
       "m": 4,
-      "price": 45
+      "price": 100
     },
     {
       "m": 6,
-      "price": 65
+      "price": 150
     },
     {
       "m": 8,
-      "price": 85
+      "price": 200
     },
     {
       "m": 10,
-      "price": 105
+      "price": 250
     },
     {
       "m": 12,
-      "price": 125
+      "price": 300
     },
     {
       "m": 16,
-      "price": 165
+      "price": 400
     }
   ],
   "covers": [
