@@ -98,12 +98,12 @@
       "name": "SR 17",
       "price": 110,
       "amperaż": "do ~160A"
-       },
+    },
     "SR26": {
       "name": "SR 26",
       "price": 140,
       "amperaż": "do ~180A"
-      },
+    },
     "SR20": {
       "name": "SR 20",
       "price": 190,
@@ -113,8 +113,6 @@
       "name": "SR 18",
       "price": 220,
       "amperaż": "do ~320A"
-    
-   
     }
   },
   "lengths": [
@@ -173,9 +171,9 @@
         "Czerwony",
         "Zielony",
         "Pomarańczowy"
-       ]
-      },
-      {
+      ]
+    },
+    {
       "id": "Tekstylna_Slim",
       "name": "Tekstylna_Slim",
       "hasColors": true,
@@ -225,9 +223,13 @@
       "id": "9SPA_Szyb-21",
       "name": "9SPA_Szyb-21",
       "price": 50,
-      "code": "9SPA_Szyb-21"
+      "code": "9SPA_Szyb-21",
+      "unsupportedGrips": [
+        "Grip3b",
+        "GripPot"
+      ]
     },
-     {
+    {
       "id": "9SPA_M12",
       "name": "9SPA_M12",
       "price": 50,
@@ -280,6 +282,81 @@
       "name": "8SPA_Szyb-21",
       "price": 50,
       "code": "8SPA_Szyb-21"
+    }
+  ],
+  "controlPlugs": [
+    {
+      "id": "9SPA_8-9",
+      "name": "9SPA 8-9",
+      "pins": "8-9",
+      "machines": [
+        "9SPA_Szyb-21",
+        "9SPA_M12"
+      ]
+    },
+    {
+      "id": "8SPA_8-9",
+      "name": "8SPA 8-9",
+      "pins": "8-9",
+      "machines": [
+        "8SPA_Szyb-21"
+      ]
+    },
+    {
+      "id": "EWM_A-B",
+      "name": "EWM A-B",
+      "pins": "A-B",
+      "machines": [
+        "EWM_5pin"
+      ]
+    },
+    {
+      "id": "EWM_1-2-3",
+      "name": "EWM 1-2-3",
+      "pins": "1-2-3",
+      "machines": [
+        "EWM_8pin"
+      ]
+    },
+    {
+      "id": "Kemppi_7pin_plug",
+      "name": "Kemppi 7pin",
+      "pins": "standard",
+      "machines": [
+        "Kemppi_7pin"
+      ]
+    },
+    {
+      "id": "Fronius_9pin_plug",
+      "name": "Fronius 9pin",
+      "pins": "standard",
+      "machines": [
+        "Fronius_9pin"
+      ]
+    },
+    {
+      "id": "ESAB_2pin_plug",
+      "name": "ESAB 2pin",
+      "pins": "standard",
+      "machines": [
+        "ESAB_2pin"
+      ]
+    },
+    {
+      "id": "Lincoln_5pin_plug",
+      "name": "Lincoln 5pin",
+      "pins": "standard",
+      "machines": [
+        "Lincoln_5pin"
+      ]
+    },
+    {
+      "id": "Magnum_2pin_plug",
+      "name": "Magnum 2pin",
+      "pins": "standard",
+      "machines": [
+        "Magnum_2pin"
+      ]
     }
   ]
 }
