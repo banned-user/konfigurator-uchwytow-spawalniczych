@@ -3,9 +3,9 @@
   "currency": "zł",
   "coolingTypes": [
     {
-      "id": "gazowy",
-      "name": "Gazowy",
-      "description": "Chłodzenie gazem"
+      "id": "gazowy1",
+      "name": "Gazowy1",
+      "description": "Chłodzenie gazem1"
     },
     {
       "id": "wodny",
