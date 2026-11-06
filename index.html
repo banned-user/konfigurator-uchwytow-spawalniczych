@@ -718,6 +718,8 @@ function renderSummary(content) {
   html += '<div class="product-code" id="productCode">' + code + '</div>';
   html += '<div class="total">Cena: ' + price + ' ' + (data.currency || 'zł') + '</div>';
   html += '<div style="margin-top:20px">';
+  html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Nazwa własna (opcjonalnie)</label>';
+  html += '<input type="text" id="customName" placeholder="np. Uchwyt do Kemppi" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);margin-bottom:12px">';
   html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Nazwa klienta</label>';
   html += '<input type="text" id="customerName" placeholder="Imię i nazwisko / firma" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);margin-bottom:12px">';
   html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Telefon</label>';
@@ -731,6 +733,18 @@ function renderSummary(content) {
   html += '</div>';
 
   content.innerHTML = html;
+
+  // Pre-fill when editing
+  if (window.editingOrderId) {
+    const order = orders.find(o => o.id === window.editingOrderId);
+    if (order) {
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+      set('customName', order.customName);
+      set('customerName', order.customerName);
+      set('customerPhone', order.customerPhone);
+      set('orderNotes', order.notes);
+    }
+  }
 }
 
 function row(label, value) {
@@ -738,22 +752,46 @@ function row(label, value) {
 }
 
 function saveOrder(status) {
-  const order = {
-    id: Date.now(),
-    code: generateCode(),
-    price: calculatePrice(),
-    status: status,
-    customerName: document.getElementById('customerName')?.value || '',
-    customerPhone: document.getElementById('customerPhone')?.value || '',
-    notes: document.getElementById('orderNotes')?.value || '',
-    config: { ...config },
-    date: new Date().toISOString()
-  };
-  orders.push(order);
+  const customerName = document.getElementById('customerName')?.value || '';
+  const customerPhone = document.getElementById('customerPhone')?.value || '';
+  const notes = document.getElementById('orderNotes')?.value || '';
+  const customName = document.getElementById('customName')?.value || '';
+
+  if (window.editingOrderId) {
+    const order = orders.find(o => o.id === window.editingOrderId);
+    if (order) {
+      order.code = generateCode();
+      order.price = calculatePrice();
+      order.status = status;
+      order.customerName = customerName;
+      order.customerPhone = customerPhone;
+      order.notes = notes;
+      order.customName = customName;
+      order.config = { ...config };
+      order.date = new Date().toISOString();
+    }
+    delete window.editingOrderId;
+    alert('Zamówienie zaktualizowane!');
+  } else {
+    const order = {
+      id: Date.now(),
+      code: generateCode(),
+      price: calculatePrice(),
+      status: status,
+      customerName,
+      customerPhone,
+      notes,
+      customName,
+      config: { ...config },
+      date: new Date().toISOString()
+    };
+    orders.push(order);
+    alert('Zamówienie zapisane!');
+  }
+
   localStorage.setItem('weldingOrders', JSON.stringify(orders));
   updateOrdersCount();
   saveToCloud();
-  alert('Zamówienie zapisane!');
   currentStep = 0;
   config = {};
   renderProgress();
@@ -808,6 +846,7 @@ function renderOrders() {
       <div class="meta">${o.date} · ${o.price} zł</div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
         <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="toggleDetails('${detailsId}')">Podgląd</button>
+        <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="editOrder(${o.id})">Edytuj</button>
         ${actions}
         <button class="danger" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="removeOrder(${o.id})">Usuń</button>
       </div>
@@ -845,6 +884,20 @@ function renderOrderDetails(o) {
       <div class="row"><span>Cena</span><span>${o.price} zł</span></div>
     </div>
   `;
+}
+
+function editOrder(id) {
+  const order = orders.find(o => o.id === id);
+  if (!order) return;
+  config = JSON.parse(JSON.stringify(order.config || {}));
+  // Przejdź do konfiguratora z wczytanymi danymi
+  currentStep = 0;
+  showSection('config');
+  renderProgress();
+  renderStep(true);
+  // Zapamiętaj ID edytowanego zamówienia, żeby przy zapisie nadpisać
+  window.editingOrderId = id;
+  alert('Edytujesz zamówienie. Po zmianach zapisz je ponownie z podsumowania.');
 }
 
 function changeStatus(id, newStatus) {
