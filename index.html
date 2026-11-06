@@ -35,6 +35,7 @@ h1 { font-size: 1.6rem; margin-bottom: 4px; color: var(--accent); }
   border: 1px solid var(--border);
 }
 .progress .step.active { background: var(--accent); color: #000; font-weight: 600; border-color: var(--accent); }
+.progress .step.done { background: #1e3a2f; color: var(--success); border-color: var(--success); }
 .progress .step.incomplete { background: #4a1a1a; color: #ef4444; border-color: #ef4444; }
 .progress .step { white-space: normal; word-break: break-word; line-height: 1.2; padding: 8px 4px; }
 .card {
@@ -611,9 +612,6 @@ function renderStep(forceShow) {
     });
   } else if (step.id === 'grip') {
     data.grips.forEach(g => {
-      // Wykluczenia rękojeści zależne od maszyny
-      const machine = data.machines.find(m => m.id === config.machine);
-      if (machine && machine.unsupportedGrips && machine.unsupportedGrips.includes(g.id)) return;
       // Cybergrip nie dla wodnego i nie dla SR18/SR20/SR26
       if ((g.id === 'Cybergrip' || g.id === 'cybergrip') && (config.cooling === 'Wodny' || config.cooling === 'wodny')) return;
       const size = config.size;
@@ -819,9 +817,10 @@ function generateCode() {
   const cover = data.covers.find(c => c.id === config.cover);
   const coverCode = cover ? cover.id : '';
   const leather = data.leathers.find(l => l.id === config.leather);
-  const leatherCode = leather && leather.id !== 'brak' ? leather.id : '';
-  const machine = data.machines.find(m => m.id === config.machine);
-  const machineCode = machine ? machine.code : '';
+  const leatherCode = leather && leather.id !== 'Bez_skóry' && leather.id !== 'brak' ? leather.id : '';
+  const brandCode = config.brand || '';
+  const plug = data.plugs?.find(p => p.id === config.plug);
+  const plugCode = plug ? plug.name : '';
 
   let parts = [size];
   if (gripCode) parts.push(gripCode);
@@ -832,7 +831,8 @@ function generateCode() {
   if (coverCode) parts.push(coverCode);
   if (config.coverVariant) parts.push(config.coverVariant);
   if (leatherCode) parts.push('Skora ' + (config.leatherColor || '') + ' ' + leatherCode);
-  if (machineCode) parts.push(machineCode);
+  if (brandCode) parts.push(brandCode);
+  if (plugCode) parts.push(plugCode);
 
   return parts.filter(Boolean).join('_').replace(/\s+/g, ' ').trim();
 }
@@ -843,9 +843,12 @@ function renderSummary(content) {
 
   let html = '<h2 style="margin-bottom:16px">Podsumowanie</h2>';
   html += '<div class="summary">';
+  html += row('Marka', data.brands?.find(b => b.id === config.brand)?.name || config.brand || '-');
+  html += row('Wtyczka', data.plugs?.find(p => p.id === config.plug)?.name || config.plug || '-');
+  html += row('Złącze gazowe', data.gasConnectors?.find(g => g.id === config.gasConnector)?.name || config.gasConnector || '-');
   html += row('Typ', data.coolingTypes.find(c => c.id === config.cooling)?.name || '-');
   html += row('Rękojeść', data.grips.find(g => g.id === config.grip)?.name || '-');
-  html += row('Rodzina fajki', data.neckFamilies.find(f => f.id === config.neckFamily)?.name || '-');
+  html += row('Rodzaj fajki', data.neckFamilies.find(f => f.id === config.neckFamily)?.name || '-');
   html += row('Rozmiar', data.sizes[config.size]?.name || '-');
   html += row('Fajka', data.neckTypes.find(n => n.id === config.neck)?.name || '-');
   if (config.neckColor) html += row('Kolor fajki', config.neckColor);
@@ -854,8 +857,7 @@ function renderSummary(content) {
   html += row('Osłona', cover?.name || '-');
   if (config.coverVariant) html += row('Wariant osłony', config.coverVariant);
   html += row('Skóra', data.leathers.find(l => l.id === config.leather)?.name || '-');
-  if (config.leather !== 'brak' && config.leatherColor) html += row('Kolor skóry', config.leatherColor);
-  html += row('Maszyna', data.machines.find(m => m.id === config.machine)?.name || '-');
+  if (config.leather !== 'Bez_skóry' && config.leather !== 'brak' && config.leatherColor) html += row('Kolor skóry', config.leatherColor);
   html += '</div>';
   html += '<div class="product-code" id="productCode">' + code + '</div>';
   html += '<div class="total">Cena: ' + price + ' ' + (data.currency || 'zł') + '</div>';
@@ -1020,23 +1022,25 @@ function toggleDetails(id) {
 
 function renderOrderDetails(o) {
   const c = o.config || {};
+  const brand = data.brands?.find(x => x.id === c.brand)?.name || c.brand || '-';
+  const plug = data.plugs?.find(x => x.id === c.plug)?.name || c.plug || '-';
   const cooling = data.coolingTypes.find(x => x.id === c.cooling)?.name || '-';
   const grip = data.grips.find(x => x.id === c.grip)?.name || '-';
   const neck = data.neckTypes.find(x => x.id === c.neck)?.name || '-';
   const size = data.sizes[c.size]?.name || c.size || '-';
   const cover = data.covers.find(x => x.id === c.cover)?.name || '-';
   const leather = data.leathers.find(x => x.id === c.leather)?.name || '-';
-  const machine = data.machines.find(x => x.id === c.machine)?.name || '-';
   return `
     <div class="summary" style="font-size:0.95rem">
+      <div class="row"><span>Marka</span><span>${brand}</span></div>
+      <div class="row"><span>Wtyczka</span><span>${plug}</span></div>
       <div class="row"><span>Typ</span><span>${cooling}</span></div>
       <div class="row"><span>Rękojeść</span><span>${grip}</span></div>
       <div class="row"><span>Fajka</span><span>${neck}</span></div>
       <div class="row"><span>Rozmiar</span><span>${size}</span></div>
       <div class="row"><span>Długość</span><span>${c.length || '-'} m</span></div>
-      <div class="row"><span>Osłona</span><span>${cover} (${c.coverColor || '-'})</span></div>
-      <div class="row"><span>Skóra</span><span>${leather}${c.leather !== 'brak' && c.leatherColor ? ' (' + c.leatherColor + ')' : ''}</span></div>
-      <div class="row"><span>Maszyna</span><span>${machine}</span></div>
+      <div class="row"><span>Osłona</span><span>${cover} (${c.coverVariant || '-'})</span></div>
+      <div class="row"><span>Skóra</span><span>${leather}${c.leather !== 'Bez_skóry' && c.leather !== 'brak' && c.leatherColor ? ' (' + c.leatherColor + ')' : ''}</span></div>
       <div class="row"><span>Cena</span><span>${o.price} zł</span></div>
     </div>
   `;
