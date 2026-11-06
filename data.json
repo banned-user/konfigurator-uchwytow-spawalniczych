@@ -3,14 +3,14 @@
   "currency": "zł",
   "coolingTypes": [
     {
-      "id": "gazowy1",
-      "name": "Gazowy1",
-      "description": "Chłodzenie gazem1"
+      "id": "gazowy",
+      "name": "Gazowy",
+      "description": "Chłodzenie gazem"
     },
     {
-      "id": "hypercool",
-      "name": "hypercool",
-      "description": "Chłodzenie hyper"
+      "id": "wodny",
+      "name": "Wodny",
+      "description": "Chłodzenie wodą"
     }
   ],
   "grips": [
@@ -137,10 +137,6 @@
       "price": 125
     },
     {
-      "m": 14,
-      "price": 145
-    },
-    {
       "m": 16,
       "price": 165
     }
@@ -154,43 +150,55 @@
         {
           "id": "std",
           "name": "Standard",
-          "pricePerMeter": 4.5
+          "pricePerMeter": 15
         },
         {
           "id": "swiss",
           "name": "Swiss",
-          "pricePerMeter": 50
+          "pricePerMeter": 40
         }
       ]
     },
     {
-      "id": "tekstyl",
-      "name": "Tekstyl",
+      "id": "Tekstylna",
+      "name": "Tekstylna",
       "hasColors": true,
-      "pricePerMeter": 2.8,
+      "pricePerMeter": 15,
       "colors": [
         "szary",
         "czarny",
         "niebieski",
         "czerwony",
+        "zielony",
         "pomarańczowy"
+         },
+    {
+      "id": "Tekstylna_Slim",
+      "name": "Tekstylna_Slim",
+      "hasColors": true,
+      "pricePerMeter": 10,
+      "colors": [
+        "zielony",
+        "czerwony",
+        "pomarańczowy",
+        "moro"
       ]
     }
   ],
   "leathers": [
     {
-      "id": "natural",
+      "id": "Naturalna",
       "name": "Naturalna",
-      "price": 55,
+      "price": 100,
       "colors": [
         "czarna",
         "czerwona"
       ]
     },
     {
-      "id": "syntetyk",
+      "id": "Syntetyczna",
       "name": "Syntetyczna",
-      "price": 32,
+      "price": 50,
       "colors": [
         "czarna",
         "czerwona",
@@ -203,66 +211,72 @@
       ]
     },
     {
-      "id": "brak",
-      "name": "Bez skóry",
+      "id": "Bez_skóry",
+      "name": "Bez_skóry",
       "price": 0,
       "colors": []
     }
   ],
   "machines": [
     {
-      "id": "kemppi7pin",
-      "name": "Kemppi 7pin",
-      "price": 38,
-      "code": "kemppi 7pin"
+      "id": "9SPA_Szyb-21",
+      "name": "9SPA_Szyb-21",
+      "price": 50,
+      "code": "9SPA_Szyb-21"
+    },
+     {
+      "id": "9SPA_M12",
+      "name": "9SPA_M12",
+      "price": 50,
+      "code": "9SPA_M12"
     },
     {
-      "id": "kemppi4pin",
-      "name": "Kemppi 4pin",
-      "price": 38,
-      "code": "kemppi 4pin"
+      "id": "Kemppi_7pin",
+      "name": "Kemppi_7pin",
+      "price": 80,
+      "code": "Kemppi_7pin"
     },
     {
-      "id": "fronius9pin",
-      "name": "Fronius 9pin",
-      "price": 45,
-      "code": "fronius"
+      "id": "Fronius_9pin",
+      "name": "Fronius_9pin",
+      "price": 250,
+      "code": "Fronius_9pin"
     },
     {
-      "id": "esab2pin",
-      "name": "ESAB 2pin",
-      "price": 40,
-      "code": "esab"
+      "id": "ESAB_2pin",
+      "name": "ESAB_2pin",
+      "price": 70,
+      "code": "ESAB_2pin"
     },
     {
-      "id": "lincoln5pin",
-      "name": "Lincoln 5pin",
-      "price": 40,
-      "code": "lincoln"
+      "id": "Lincoln_5pin",
+      "name": "Lincoln_5pin",
+      "price": 80,
+      "code": "Lincoln_5pin"
     },
     {
-      "id": "magnum2pin",
-      "name": "Magnum 2pin",
-      "price": 42,
-      "code": "2mag"
+      "id": "Magnum_2pin",
+      "name": "Magnum_2pin",
+      "price": 50,
+      "code": "Magnum_2pin"
     },
     {
-      "id": "ewm5pin",
-      "name": "EWM5pin",
-      "price": 40,
-      "code": "ewm"
+      "id": "EWM_5pin",
+      "name": "EWM_5pin",
+      "price": 80,
+      "code": "EWM_5pin"
     },
     {
-      "id": "9spaszyb21",
-      "name": "9spaszyb21",
-      "price": 25,
-      "code": "9spaszyb21"
+      "id": "EWM_8pin",
+      "name": "EWM_8pin",
+      "price": 150,
+      "code": "EWM_8pin"
     },
     {
-      "id": "8spaM12",
-      "name": "8spa M12",
-      "price": 25,
-      "code": "8spaM12"
+      "id": "8SPA_Szyb-21",
+      "name": "8SPA_Szyb-21",
+      "price": 50,
+      "code": "8SPA_Szyb-21"
     }
   ]
 }
