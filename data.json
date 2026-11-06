@@ -8,9 +8,9 @@
       "description": "Chłodzenie gazem1"
     },
     {
-      "id": "wodny23",
-      "name": "Wodny23",
-      "description": "Chłodzenie wodą23"
+      "id": "hypercool",
+      "name": "hypercool",
+      "description": "Chłodzenie hyper"
     }
   ],
   "grips": [
