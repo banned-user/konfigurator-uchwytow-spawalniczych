@@ -410,11 +410,11 @@ function init() {
 async function loadDataFromGitHub() {
   const statusEl = document.getElementById('dataStatus');
   if (statusEl) statusEl.textContent = 'Ładowanie...';
-  const url = 'https://raw.githubusercontent.com/banned-user/konfigurator-uchwytow-spawalniczych/main/data.json';
+  // jsDelivr ma lepsze CORS niż raw.githubusercontent.com
+  const url = 'https://cdn.jsdelivr.net/gh/banned-user/konfigurator-uchwytow-spawalniczych@main/data.json';
   try {
     const res = await fetch(url + '?nocache=' + Date.now() + Math.random(), {
-      cache: 'no-store',
-      headers: { 'Cache-Control': 'no-cache' }
+      cache: 'no-store'
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const loaded = await res.json();
