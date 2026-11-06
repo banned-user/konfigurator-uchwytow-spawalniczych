@@ -1,5 +1,5 @@
 {
-  "basePrice": 150,
+  "basePrice": 300,
   "currency": "zł",
   "coolingTypes": [
     {
@@ -8,9 +8,9 @@
       "description": "Chłodzenie gazem"
     },
     {
-      "id": "wodny1",
-      "name": "Wodny1",
-      "description": "Chłodzenie1 wodą"
+      "id": "wodny",
+      "name": "Wodny",
+      "description": "Chłodzenie wodą"
     }
   ],
   "grips": [
@@ -62,8 +62,8 @@
       "hasColor": false
     },
     {
-      "id": "std",
-      "name": "STD",
+      "id": "spe",
+      "name": "SPE",
       "sizes": [
         "SR9",
         "SR17",
@@ -217,8 +217,8 @@
       "code": "kemppi 7pin"
     },
     {
-      "id": "kemppi5pin",
-      "name": "Kemppi 5pin",
+      "id": "kemppi4pin",
+      "name": "Kemppi 4pin",
       "price": 38,
       "code": "kemppi 5pin"
     },
@@ -229,8 +229,8 @@
       "code": "fronius"
     },
     {
-      "id": "esab",
-      "name": "ESAB",
+      "id": "esab2pin",
+      "name": "ESAB 2pin",
       "price": 40,
       "code": "esab"
     },
@@ -247,16 +247,16 @@
       "code": "migatronic"
     },
     {
-      "id": "ewm",
-      "name": "EWM",
+      "id": "ewm5pin",
+      "name": "EWM 5pin",
       "price": 40,
       "code": "ewm"
     },
     {
-      "id": "uniwersalna",
-      "name": "Uniwersalna / inna",
+      "id": "9spa",
+      "name": "9spa",
       "price": 25,
-      "code": "uniwersalna"
+      "code": "9spa"
     }
   ]
 }
