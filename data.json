@@ -257,6 +257,12 @@
       "name": "9spartus",
       "price": 25,
       "code": "9spartus"
+       },
+       {
+      "id": "9spaM12",
+      "name": "9spa M12",
+      "price": 25,
+      "code": "9spaM12"
     }
   ]
 }
