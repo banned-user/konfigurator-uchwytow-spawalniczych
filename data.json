@@ -1,5 +1,5 @@
 {
-  "basePrice": 300,
+  "basePrice": 400,
   "currency": "zł",
   "coolingTypes": [
     {
@@ -27,6 +27,7 @@
     {
       "id": "grip3b",
       "name": "Grip 3B",
+      "description": "Regulacja Prądu"
       "price": 20
     },
     {
@@ -92,27 +93,27 @@
     "SR9": {
       "name": "SR 9",
       "price": 90,
-      "amperage": "do ~110A"
+      "amperaż": "do ~110A"
     },
     "SR17": {
       "name": "SR 17",
       "price": 110,
-      "amperage": "do ~160A"
+      "amperaż": "do ~160A"
        },
     "SR26": {
       "name": "SR 26",
       "price": 140,
-      "amperage": "do ~180A"
+      "amperaż": "do ~180A"
       },
     "SR20": {
       "name": "SR 20",
       "price": 190,
-      "amperage": "do ~220A"
+      "amperaż": "do ~220A"
     },
     "SR18": {
       "name": "SR 18",
       "price": 220,
-      "amperage": "do ~320A"
+      "amperaż": "do ~320A"
     
    
     }
