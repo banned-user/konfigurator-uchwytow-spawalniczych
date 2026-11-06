@@ -847,7 +847,7 @@ function renderSummary(content) {
   let html = '<h2 style="margin-bottom:16px">Podsumowanie</h2>';
   html += '<div class="summary">';
   html += row('Marka', data.brands?.find(b => b.id === config.brand)?.name || config.brand || '-');
-  html += row('Wtyczka', data.plugs?.find(p => p.id === config.plug)?.name || config.plug || '-');
+  html += row('Wtyczka', (data.plugs?.find(p => p.id === config.plug)?.name || config.plug || '-') + (data.plugs?.find(p => p.id === config.plug)?.pins ? ' (' + data.plugs.find(p => p.id === config.plug).pins + ')' : ''));
   html += row('Złącze gazowe', data.gasConnectors?.find(g => g.id === config.gasConnector)?.name || config.gasConnector || '-');
   html += row('Typ', data.coolingTypes.find(c => c.id === config.cooling)?.name || '-');
   html += row('Rękojeść', data.grips.find(g => g.id === config.grip)?.name || '-');
@@ -1026,7 +1026,9 @@ function toggleDetails(id) {
 function renderOrderDetails(o) {
   const c = o.config || {};
   const brand = data.brands?.find(x => x.id === c.brand)?.name || c.brand || '-';
-  const plug = data.plugs?.find(x => x.id === c.plug)?.name || c.plug || '-';
+  const plug = data.plugs?.find(x => x.id === c.plug);
+  const plugName = plug ? plug.name + (plug.pins ? ' (' + plug.pins + ')' : '') : (c.plug || '-');
+  const neckFam = data.neckFamilies?.find(x => x.id === c.neckFamily)?.name || c.neckFamily || '-';
   const cooling = data.coolingTypes.find(x => x.id === c.cooling)?.name || '-';
   const grip = data.grips.find(x => x.id === c.grip)?.name || '-';
   const neck = data.neckTypes.find(x => x.id === c.neck)?.name || '-';
@@ -1036,9 +1038,10 @@ function renderOrderDetails(o) {
   return `
     <div class="summary" style="font-size:0.95rem">
       <div class="row"><span>Marka</span><span>${brand}</span></div>
-      <div class="row"><span>Wtyczka</span><span>${plug}</span></div>
+      <div class="row"><span>Wtyczka</span><span>${plugName}</span></div>
       <div class="row"><span>Typ</span><span>${cooling}</span></div>
       <div class="row"><span>Rękojeść</span><span>${grip}</span></div>
+      <div class="row"><span>Rodzaj fajki</span><span>${neckFam}</span></div>
       <div class="row"><span>Fajka</span><span>${neck}</span></div>
       <div class="row"><span>Rozmiar</span><span>${size}</span></div>
       <div class="row"><span>Długość</span><span>${c.length || '-'} m</span></div>
