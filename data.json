@@ -3,42 +3,42 @@
   "currency": "zł",
   "coolingTypes": [
     {
-      "id": "gazowy",
+      "id": "Gazowy",
       "name": "Gazowy",
       "description": "Chłodzenie gazem"
     },
     {
-      "id": "wodny",
+      "id": "Wodny",
       "name": "Wodny",
       "description": "Chłodzenie wodą"
     }
   ],
   "grips": [
     {
-      "id": "grip",
+      "id": "Grip",
       "name": "Grip",
       "price": 0
     },
     {
-      "id": "cybergrip",
+      "id": "Cybergrip",
       "name": "Cybergrip",
       "price": 35
     },
     {
-      "id": "grip3b",
+      "id": "Grip3b",
       "name": "Grip 3B",
       "price": 20
     },
     {
-      "id": "gripPot",
-      "name": "Grip potencjometr",
+      "id": "GripPot",
+      "name": "Grip Potencjometr",
       "price": 45
     }
   ],
   "neckFamilies": [
     {
-      "id": "tlbhd",
-      "name": "TLB HD",
+      "id": "TLB_HD",
+      "name": "TLB_HD",
       "sizes": [
         "SR9",
         "SR17"
@@ -52,8 +52,8 @@
       ]
     },
     {
-      "id": "tlbred",
-      "name": "TLB RED",
+      "id": "TLB_RED",
+      "name": "TLB_RED",
       "sizes": [
         "SR9",
         "SR17",
@@ -62,7 +62,7 @@
       "hasColor": false
     },
     {
-      "id": "spe",
+      "id": "SPE",
       "name": "SPE",
       "sizes": [
         "SR9",
@@ -145,17 +145,17 @@
   ],
   "covers": [
     {
-      "id": "guma",
+      "id": "Guma",
       "name": "Guma",
       "hasColors": false,
       "variants": [
         {
-          "id": "std",
+          "id": "STD",
           "name": "Standard",
           "pricePerMeter": 15
         },
         {
-          "id": "swiss",
+          "id": "Swiss",
           "name": "Swiss",
           "pricePerMeter": 40
         }
