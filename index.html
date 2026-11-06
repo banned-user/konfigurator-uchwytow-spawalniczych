@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Konfigurator Uchwyty Spawalnicze</title>
+<title>Konfigurator</title>
 <style>
 :root {
   --bg: #0f1419;
@@ -143,14 +143,14 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
   <div id="settingsPanel" style="display:none;margin-bottom:12px;padding:12px;background:#1a2332;border-radius:8px;border:1px solid var(--border)">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <button class="secondary" onclick="loadDataFromGitHub()">Odśwież bazę z GitHuba</button>
+      <button class="secondary" onclick="loadDataFromGitHub()">Odśwież bazę</button>
       <span id="dataStatus" style="font-size:0.85rem;color:var(--accent2)"></span>
     </div>
   </div>
 
   <div id="section-config" class="section">
-    <h1>Konfigurator uchwytów spawalniczych</h1>
-    <p class="subtitle">Wybierz krok po kroku – gotowy kod do realizacji na końcu</p>
+    <h1>Konfigurator</h1>
+    <p class="subtitle">Wybierz krok po kroku </p>
     <div class="progress" id="progress"></div>
     <div class="card" id="stepContent"></div>
     <div class="nav">
@@ -197,7 +197,7 @@ if (sessionStorage.getItem('auth') === '1') {
 const STEPS = [
   { id: 'cooling', title: 'Typ uchwytu' },
   { id: 'grip', title: 'Rękojeść' },
-  { id: 'neckFamily', title: 'Rodzina fajki' },
+  { id: 'neckFamily', title: 'Rodzaj fajki' },
   { id: 'size', title: 'Rozmiar SR' },
   { id: 'neck', title: 'Fajka Flex/Sztywna' },
   { id: 'neckColor', title: 'Kolor fajki' },
