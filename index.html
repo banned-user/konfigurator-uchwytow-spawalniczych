@@ -392,7 +392,8 @@ function removeOrder(id) {
 }
 
 function init() {
-  data = DEFAULT_DATA;
+  const saved = localStorage.getItem('weldingData');
+  data = saved ? JSON.parse(saved) : DEFAULT_DATA;
   orders.forEach(o => {
     if (!o.status) o.status = 'todo';
   });
@@ -410,7 +411,6 @@ function init() {
 async function loadDataFromGitHub() {
   const statusEl = document.getElementById('dataStatus');
   if (statusEl) statusEl.textContent = 'Ładowanie...';
-  // jsDelivr ma lepsze CORS niż raw.githubusercontent.com
   const url = 'https://cdn.jsdelivr.net/gh/banned-user/konfigurator-uchwytow-spawalniczych@main/data.json';
   try {
     const res = await fetch(url + '?nocache=' + Date.now() + Math.random(), {
@@ -420,10 +420,10 @@ async function loadDataFromGitHub() {
     const loaded = await res.json();
     if (loaded && loaded.grips && loaded.neckFamilies) {
       data = loaded;
+      localStorage.setItem('weldingData', JSON.stringify(data));
       if (statusEl) statusEl.textContent = 'Baza zaktualizowana';
       if (typeof renderStep === 'function') renderStep();
-      alert('Baza z GitHuba wczytana. Strona zostanie odświeżona.');
-      setTimeout(() => location.reload(), 800);
+      alert('Baza z GitHuba wczytana.');
       return true;
     } else {
       throw new Error('Niepoprawny format bazy');
