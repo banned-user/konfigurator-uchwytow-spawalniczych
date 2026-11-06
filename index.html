@@ -599,7 +599,7 @@ function renderStep(forceShow) {
   } else if (step.id === 'neckColor') {
     const colors = data.neckFamilies.find(f => f.id === config.neckFamily)?.colors || [];
     if (colors.length === 0) {
-      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Ta rodzina fajki nie ma kolorów</p>';
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Ten rodzaj fajki nie ma kolorów</p>';
     }
     colors.forEach(col => {
       html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.neckColor === col);
@@ -794,14 +794,14 @@ function renderSummary(content) {
   html += '<div class="summary">';
   html += row('Typ', data.coolingTypes.find(c => c.id === config.cooling)?.name || '-');
   html += row('Rękojeść', data.grips.find(g => g.id === config.grip)?.name || '-');
-  html += row('Rodzina fajki', data.neckFamilies.find(f => f.id === config.neckFamily)?.name || '-');
+  html += row('Rodzaj fajki', data.neckFamilies.find(f => f.id === config.neckFamily)?.name || '-');
   html += row('Rozmiar', data.sizes[config.size]?.name || '-');
   html += row('Fajka', data.neckTypes.find(n => n.id === config.neck)?.name || '-');
   if (config.neckColor) html += row('Kolor fajki', config.neckColor);
   html += row('Długość', (config.length || '-') + ' m');
   const cover = data.covers.find(c => c.id === config.cover);
   html += row('Osłona', cover?.name || '-');
-  if (config.coverVariant) html += row('Wariant osłony', config.coverVariant);
+  if (config.coverVariant) html += row('Kolor osłony', config.coverVariant);
   html += row('Skóra', data.leathers.find(l => l.id === config.leather)?.name || '-');
   if (config.leather !== 'brak' && config.leatherColor) html += row('Kolor skóry', config.leatherColor);
   html += row('Maszyna', data.machines.find(m => m.id === config.machine)?.name || '-');
