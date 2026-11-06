@@ -412,14 +412,18 @@ async function loadDataFromGitHub() {
   if (statusEl) statusEl.textContent = 'Ładowanie...';
   const url = 'https://raw.githubusercontent.com/banned-user/konfigurator-uchwytow-spawalniczych/main/data.json';
   try {
-    const res = await fetch(url + '?_=' + Date.now());
+    const res = await fetch(url + '?nocache=' + Date.now() + Math.random(), {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const loaded = await res.json();
     if (loaded && loaded.grips && loaded.neckFamilies) {
       data = loaded;
       if (statusEl) statusEl.textContent = 'Baza zaktualizowana';
       if (typeof renderStep === 'function') renderStep();
-      alert('Baza z GitHuba wczytana pomyślnie.');
+      alert('Baza z GitHuba wczytana. Strona zostanie odświeżona.');
+      setTimeout(() => location.reload(), 800);
       return true;
     } else {
       throw new Error('Niepoprawny format bazy');
