@@ -235,8 +235,8 @@
       "code": "esab"
     },
     {
-      "id": "lincoln",
-      "name": "Lincoln",
+      "id": "lincoln5pin",
+      "name": "Lincoln 5pin",
       "price": 40,
       "code": "lincoln"
     },
@@ -254,7 +254,7 @@
     },
     {
       "id": "9spaszyb21",
-      "name": "9spaszyb21",
+      "name": "9spaszyb 21",
       "price": 25,
       "code": "9spaszyb21"
        },
