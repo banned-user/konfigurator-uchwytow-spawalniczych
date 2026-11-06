@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Konfigurator</title>
+<title>Konfigurator Uchwyty Spawalnicze</title>
 <style>
 :root {
   --bg: #0f1419;
@@ -35,7 +35,8 @@ h1 { font-size: 1.6rem; margin-bottom: 4px; color: var(--accent); }
   border: 1px solid var(--border);
 }
 .progress .step.active { background: var(--accent); color: #000; font-weight: 600; border-color: var(--accent); }
-.progress .step.done { background: #1e3a2f; color: var(--success); }
+.progress .step.incomplete { background: #4a1a1a; color: #ef4444; border-color: #ef4444; }
+.progress .step { white-space: normal; word-break: break-word; line-height: 1.2; padding: 8px 4px; }
 .card {
   background: var(--card);
   border-radius: 12px;
@@ -143,14 +144,14 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
   <div id="settingsPanel" style="display:none;margin-bottom:12px;padding:12px;background:#1a2332;border-radius:8px;border:1px solid var(--border)">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <button class="secondary" onclick="loadDataFromGitHub()">Odśwież bazę</button>
+      <button class="secondary" onclick="loadDataFromGitHub()">Odśwież bazę z GitHuba</button>
       <span id="dataStatus" style="font-size:0.85rem;color:var(--accent2)"></span>
     </div>
   </div>
 
   <div id="section-config" class="section">
-    <h1>Konfigurator</h1>
-    <p class="subtitle">Wybierz krok po kroku </p>
+    <h1>Konfigurator uchwytów spawalniczych</h1>
+    <p class="subtitle">Wybierz krok po kroku – gotowy kod do realizacji na końcu</p>
     <div class="progress" id="progress"></div>
     <div class="card" id="stepContent"></div>
     <div class="nav">
@@ -197,7 +198,7 @@ if (sessionStorage.getItem('auth') === '1') {
 const STEPS = [
   { id: 'cooling', title: 'Typ uchwytu' },
   { id: 'grip', title: 'Rękojeść' },
-  { id: 'neckFamily', title: 'Rodzaj fajki' },
+  { id: 'neckFamily', title: 'Rodzina fajki' },
   { id: 'size', title: 'Rozmiar SR' },
   { id: 'neck', title: 'Fajka Flex/Sztywna' },
   { id: 'neckColor', title: 'Kolor fajki' },
@@ -420,21 +421,28 @@ async function loadDataFromGitHub() {
   if (statusEl) statusEl.textContent = 'Ładowanie bazy...';
   if (infoEl) infoEl.textContent = 'data_ładowanie...';
 
-  // GitHub API – zawsze aktualna wersja (bez cache CDN)
-  const apiUrl = 'https://api.github.com/repos/banned-user/konfigurator-uchwytow-spawalniczych/contents/data.json?t=' + Date.now();
-
+  // GitHub API – zawsze aktualna + data commita
+  const apiUrl = 'https://api.github.com/repos/banned-user/konfigurator-uchwytow-spawalniczych/commits?path=data.json&per_page=1&t=' + Date.now();
   try {
-    const res = await fetch(apiUrl, {
+    const commitRes = await fetch(apiUrl, { cache: 'no-store' });
+    let stamp = new Date().toISOString().replace('T', '_').slice(0, 16);
+    if (commitRes.ok) {
+      const commits = await commitRes.json();
+      if (commits && commits[0] && commits[0].commit && commits[0].commit.committer) {
+        const d = new Date(commits[0].commit.committer.date);
+        stamp = d.toISOString().replace('T', '_').slice(0, 16);
+      }
+    }
+    const dataRes = await fetch('https://api.github.com/repos/banned-user/konfigurator-uchwytow-spawalniczych/contents/data.json?t=' + Date.now(), {
       cache: 'no-store',
       headers: { 'Accept': 'application/vnd.github.raw' }
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const loaded = await res.json();
+    if (!dataRes.ok) throw new Error('HTTP ' + dataRes.status);
+    const loaded = await dataRes.json();
     if (!loaded || !loaded.grips || !loaded.neckFamilies) {
       throw new Error('Niepoprawny format bazy');
     }
     data = loaded;
-    const stamp = new Date().toISOString().replace('T', '_').slice(0, 16);
     if (infoEl) infoEl.textContent = 'data_' + stamp;
     if (statusEl) statusEl.textContent = 'Baza OK';
     if (typeof renderStep === 'function') renderStep();
@@ -487,9 +495,16 @@ function updateOrdersCount() {
 
 function renderProgress() {
   const el = document.getElementById('progress');
-  el.innerHTML = STEPS.map((s, i) =>
-    `<div class="step ${i === currentStep ? 'active' : ''} ${i < currentStep ? 'done' : ''}" onclick="jumpToStep(${i})" style="cursor:pointer">${s.title}</div>`
-  ).join('');
+  el.innerHTML = STEPS.map((s, i) => {
+    const done = i < currentStep;
+    const active = i === currentStep;
+    const incomplete = active && !isStepComplete();
+    let cls = 'step';
+    if (active) cls += ' active';
+    if (done) cls += ' done';
+    if (incomplete) cls += ' incomplete';
+    return `<div class="${cls}" onclick="jumpToStep(${i})" style="cursor:pointer">${s.title}</div>`;
+  }).join('');
 }
 
 function jumpToStep(index) {
@@ -548,8 +563,9 @@ function renderStep(forceShow) {
     });
   } else if (step.id === 'grip') {
     data.grips.forEach(g => {
-      // Wodny bez Cybergrip
-      if (config.cooling === 'wodny' && g.id === 'cybergrip') return;
+      // Cybergrip nie dla SR18, SR20, SR26
+      const size = config.size;
+      if (g.id === 'Cybergrip' && (size === 'SR18' || size === 'SR20' || size === 'SR26')) return;
       html += optionHTML(g.id, g.name, g.price ? `+${g.price} ${data.currency}` : '', config.grip === g.id);
     });
   } else if (step.id === 'neckFamily') {
@@ -558,20 +574,20 @@ function renderStep(forceShow) {
     });
   } else if (step.id === 'size') {
     let allowed = data.neckFamilies.find(f => f.id === config.neckFamily)?.sizes || [];
-    // Wodny: tylko SR18 i SR20 (odpadają 9, 17, 26)
-    if (config.cooling === 'wodny') {
+    // Wodny: tylko SR18 i SR20
+    if (config.cooling === 'Wodny' || config.cooling === 'wodny') {
       allowed = allowed.filter(s => s === 'SR18' || s === 'SR20');
     }
-    // Cybergrip ogranicza do SR9 i SR17 (tylko gazowy)
-    if (config.grip === 'cybergrip') {
-      allowed = allowed.filter(s => s === 'SR9' || s === 'SR17');
+    // Cybergrip nie dla SR18, SR20, SR26
+    if (config.grip === 'Cybergrip' || config.grip === 'cybergrip') {
+      allowed = allowed.filter(s => s !== 'SR18' && s !== 'SR20' && s !== 'SR26');
     }
     if (allowed.length === 0) {
       html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak dostępnych rozmiarów dla tej kombinacji</p>';
     }
     allowed.forEach(sid => {
       const s = data.sizes[sid];
-      if (s) html += optionHTML(sid, s.name, `${s.amperage || ''} · +${s.price} ${data.currency}`, config.size === sid);
+      if (s) html += optionHTML(sid, s.name, `${s.amperage || s.amperaż || ''} · +${s.price} ${data.currency}`, config.size === sid);
     });
   } else if (step.id === 'neck') {
     data.neckTypes.forEach(t => {
@@ -591,6 +607,8 @@ function renderStep(forceShow) {
     });
   } else if (step.id === 'cover') {
     data.covers.forEach(c => {
+      // Tekstylna_Slim nie dla SR18 i SR26
+      if (c.id === 'Tekstylna_Slim' && (config.size === 'SR18' || config.size === 'SR26')) return;
       html += optionHTML(c.id, c.name, '', config.cover === c.id);
     });
   } else if (step.id === 'coverVariant') {
@@ -603,6 +621,8 @@ function renderStep(forceShow) {
       });
     } else if (cover.colors) {
       cover.colors.forEach(col => {
+        // Tekstylna fiolet nie dla SR18 i SR26
+        if (config.cover === 'Tekstylna' && col === 'Fioletowy' && (config.size === 'SR18' || config.size === 'SR26')) return;
         html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.coverVariant === col);
       });
     } else {
@@ -614,7 +634,11 @@ function renderStep(forceShow) {
     });
   } else if (step.id === 'leatherColor') {
     const leather = data.leathers.find(l => l.id === config.leather);
-    const colors = leather?.colors || [];
+    let colors = leather?.colors || [];
+    // Syntetyczna dla SR18 i SR26: tylko Fioletowa i Zielona
+    if (config.leather === 'Syntetyczna' && (config.size === 'SR18' || config.size === 'SR26')) {
+      colors = colors.filter(c => c === 'Fioletowa' || c === 'Zielona');
+    }
     if (colors.length === 0) {
       html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak kolorów dla wybranej skóry</p>';
     }
@@ -669,7 +693,7 @@ function isStepComplete() {
     const cover = data.covers?.find(c => c.id === config.cover);
     if (!cover || (!cover.variants && !cover.colors)) return true;
   }
-  if (step.id === 'leatherColor' && config.leather === 'brak') return true;
+  if (step.id === 'leatherColor' && (config.leather === 'brak' || config.leather === 'Bez_skóry')) return true;
   return config[step.id] !== undefined && config[step.id] !== null && config[step.id] !== '';
 }
 
@@ -815,6 +839,20 @@ function row(label, value) {
 }
 
 function saveOrder(status) {
+  // Sprawdź czy wszystkie wymagane kroki są uzupełnione
+  for (let i = 0; i < STEPS.length - 1; i++) {
+    const step = STEPS[i];
+    if (step.id === 'summary') continue;
+    currentStep = i;
+    if (!isStepComplete()) {
+      renderProgress();
+      renderStep(true);
+      alert('Uzupełnij wszystkie wymagane pola. Niekompletny krok został podświetlony na czerwono.');
+      return;
+    }
+  }
+  currentStep = STEPS.length - 1;
+
   const customerName = document.getElementById('customerName')?.value || '';
   const customerPhone = document.getElementById('customerPhone')?.value || '';
   const notes = document.getElementById('orderNotes')?.value || '';
