@@ -122,16 +122,25 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
   <div class="header-actions">
     <button class="secondary" onclick="showSection('config')">Konfigurator</button>
-    <button class="secondary" onclick="showOrders('todo')">Do realizacji (<span id="countTodo">0</span>)</button>
     <button class="secondary" onclick="showOrders('waiting')">W oczekiwaniu (<span id="countWaiting">0</span>)</button>
+    <button class="secondary" onclick="showOrders('todo')">Do realizacji (<span id="countTodo">0</span>)</button>
     <button class="secondary" onclick="showOrders('done')">Zrealizowane (<span id="countDone">0</span>)</button>
-    <button class="secondary" onclick="document.getElementById('fileInput').click()">Wczytaj bazę (JSON)</button>
-    <button class="secondary" onclick="exportData()">Eksportuj bazę</button>
-    <button class="secondary" onclick="resetDataCache()">Resetuj bazę</button>
-    <button class="secondary" onclick="exportOrders()">Eksportuj zamówienia</button>
-    <button class="secondary" onclick="document.getElementById('ordersFileInput').click()">Importuj zamówienia</button>
+    <button class="secondary" onclick="showOrders('archived')">Archiwalne (<span id="countArchived">0</span>)</button>
+    <button class="secondary" id="btnSettings" onclick="toggleSettings()">Ustawienia</button>
+  </div>
+
+  <div id="settingsPanel" style="display:none;margin-bottom:12px;padding:12px;background:#1a2332;border-radius:8px;border:1px solid var(--border)">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="secondary" onclick="document.getElementById('fileInput').click()">Wczytaj bazę (JSON)</button>
+      <button class="secondary" onclick="document.getElementById('csvInput').click()">Wczytaj bazę (CSV)</button>
+      <button class="secondary" onclick="exportData()">Eksportuj bazę</button>
+      <button class="secondary" onclick="resetDataCache()">Resetuj bazę</button>
+      <button class="secondary" onclick="exportOrders()">Eksportuj zamówienia</button>
+      <button class="secondary" onclick="document.getElementById('ordersFileInput').click()">Importuj zamówienia</button>
+    </div>
     <input type="file" id="ordersFileInput" accept=".json" style="display:none" onchange="importOrdersFile(this)">
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadDataFile(this)">
+    <input type="file" id="csvInput" accept=".csv,.txt" style="display:none" onchange="loadDataFromCSV(this)">
   </div>
 
   <div id="section-config" class="section">
@@ -471,6 +480,8 @@ function renderStep(forceShow) {
     });
   } else if (step.id === 'grip') {
     data.grips.forEach(g => {
+      // Wodny bez Cybergrip
+      if (config.cooling === 'wodny' && g.id === 'cybergrip') return;
       html += optionHTML(g.id, g.name, g.price ? `+${g.price} ${data.currency}` : '', config.grip === g.id);
     });
   } else if (step.id === 'neckFamily') {
@@ -479,11 +490,16 @@ function renderStep(forceShow) {
     });
   } else if (step.id === 'size') {
     let allowed = data.neckFamilies.find(f => f.id === config.neckFamily)?.sizes || [];
+    // Wodny: tylko SR18 i SR20 (odpadają 9, 17, 26)
+    if (config.cooling === 'wodny') {
+      allowed = allowed.filter(s => s === 'SR18' || s === 'SR20');
+    }
+    // Cybergrip ogranicza do SR9 i SR17 (tylko gazowy)
     if (config.grip === 'cybergrip') {
       allowed = allowed.filter(s => s === 'SR9' || s === 'SR17');
     }
     if (allowed.length === 0) {
-      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Najpierw wybierz rodzinę fajki</p>';
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak dostępnych rozmiarów dla tej kombinacji</p>';
     }
     allowed.forEach(sid => {
       const s = data.sizes[sid];
@@ -558,7 +574,14 @@ function optionHTML(id, name, price, selected) {
 function selectOption(stepId, value) {
   if (stepId === 'length') value = Number(value);
   config[stepId] = value;
-  if (stepId === 'cooling' || stepId === 'grip' || stepId === 'neckFamily') {
+  if (stepId === 'cooling') {
+    delete config.size;
+    // Wodny nie ma Cybergrip
+    if (value === 'wodny' && config.grip === 'cybergrip') {
+      delete config.grip;
+    }
+  }
+  if (stepId === 'grip' || stepId === 'neckFamily') {
     delete config.size;
     if (stepId === 'neckFamily') delete config.neckColor;
   }
@@ -842,6 +865,11 @@ function loadDataFile(input) {
   input.value = '';
 }
 
+function loadDataFromCSV(input) {
+  alert('Import CSV jest w przygotowaniu. Na razie użyj pliku JSON.');
+  input.value = '';
+}
+
 function exportData() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
@@ -883,6 +911,13 @@ function importOrdersFile(input) {
   };
   reader.readAsText(file);
   input.value = '';
+}
+
+function toggleSettings() {
+  const panel = document.getElementById('settingsPanel');
+  if (panel) {
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  }
 }
 
 function resetDataCache() {
