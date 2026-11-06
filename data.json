@@ -92,12 +92,12 @@
     "SR9": {
       "name": "SR 9",
       "price": 90,
-      "amperage": "do ~130A"
+      "amperage": "do ~110A"
     },
     "SR17": {
       "name": "SR 17",
       "price": 110,
-      "amperage": "do ~140A"
+      "amperage": "do ~160A"
     },
     "SR18": {
       "name": "SR 18",
