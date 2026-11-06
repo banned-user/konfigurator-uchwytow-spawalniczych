@@ -5,21 +5,73 @@
     {
       "id": "gazowy",
       "name": "Gazowy",
-      "description": "Chłodzenie gazem",
-      "sizes": [
-        "SR9",
-        "SR17",
-        "SR26"
-      ]
+      "description": "Chłodzenie gazem"
     },
     {
       "id": "wodny",
       "name": "Wodny",
-      "description": "Chłodzenie wodą",
+      "description": "Chłodzenie wodą"
+    }
+  ],
+  "grips": [
+    {
+      "id": "grip",
+      "name": "Grip",
+      "price": 0
+    },
+    {
+      "id": "cybergrip",
+      "name": "Cybergrip",
+      "price": 35
+    },
+    {
+      "id": "grip3b",
+      "name": "Grip 3B",
+      "price": 20
+    },
+    {
+      "id": "gripPot",
+      "name": "Grip potencjometr",
+      "price": 45
+    }
+  ],
+  "neckFamilies": [
+    {
+      "id": "tlbhd",
+      "name": "TLB HD",
       "sizes": [
-        "SR18",
-        "SR20"
+        "SR9",
+        "SR17"
+      ],
+      "hasColor": true,
+      "colors": [
+        "zielony",
+        "fioletowy",
+        "czerwony",
+        "pomarańczowy"
       ]
+    },
+    {
+      "id": "tlbred",
+      "name": "TLB RED",
+      "sizes": [
+        "SR9",
+        "SR17",
+        "SR20"
+      ],
+      "hasColor": false
+    },
+    {
+      "id": "std",
+      "name": "STD",
+      "sizes": [
+        "SR9",
+        "SR17",
+        "SR20",
+        "SR18",
+        "SR26"
+      ],
+      "hasColor": false
     }
   ],
   "neckTypes": [
@@ -40,17 +92,12 @@
     "SR9": {
       "name": "SR 9",
       "price": 90,
-      "amperage": "do ~130A"
+      "amperage": "do ~110A"
     },
     "SR17": {
       "name": "SR 17",
       "price": 110,
       "amperage": "do ~140A"
-    },
-    "SR26": {
-      "name": "SR 26",
-      "price": 140,
-      "amperage": "do ~180A"
     },
     "SR18": {
       "name": "SR 18",
@@ -61,6 +108,11 @@
       "name": "SR 20",
       "price": 190,
       "amperage": "do ~220A"
+    },
+    "SR26": {
+      "name": "SR 26",
+      "price": 140,
+      "amperage": "do ~180A"
     }
   },
   "lengths": [
@@ -97,49 +149,65 @@
     {
       "id": "guma",
       "name": "Guma",
-      "pricePerMeter": 4.5,
-      "code": "Sguma"
+      "hasColors": false,
+      "variants": [
+        {
+          "id": "std",
+          "name": "Standard",
+          "pricePerMeter": 4.5
+        },
+        {
+          "id": "swiss",
+          "name": "Swiss",
+          "pricePerMeter": 50
+        }
+      ]
     },
     {
       "id": "tekstyl",
       "name": "Tekstyl",
+      "hasColors": true,
       "pricePerMeter": 2.8,
-      "code": "Stekstyl"
+      "colors": [
+        "szary",
+        "czarny",
+        "niebieski",
+        "czerwony",
+        "pomarańczowy"
+      ]
     }
-  ],
-  "coverColors": [
-    "szary",
-    "czarny",
-    "granatowy",
-    "czerwony",
-    "pomarańczowy"
   ],
   "leathers": [
     {
       "id": "natural",
       "name": "Naturalna",
       "price": 55,
-      "code": "natural"
+      "colors": [
+        "czarna",
+        "czerwona"
+      ]
     },
     {
       "id": "syntetyk",
       "name": "Syntetyczna",
       "price": 32,
-      "code": "syntetyk"
+      "colors": [
+        "czarna",
+        "czerwona",
+        "zielona",
+        "fioletowa",
+        "niebieska",
+        "żółta",
+        "pomarańczowa",
+        "szara"
+      ]
     },
     {
       "id": "brak",
       "name": "Bez skóry",
       "price": 0,
-      "code": "brak"
+      "colors": []
     }
-  ],
-  "leatherColors": [
-    "czarna",
-    "brązowa",
-    "szara",
-    "beżowa",
-    "czerwona"
   ],
   "machines": [
     {
@@ -189,28 +257,6 @@
       "name": "Uniwersalna / inna",
       "price": 25,
       "code": "uniwersalna"
-    }
-  ],
-  "grips": [
-    {
-      "id": "grip",
-      "name": "Grip",
-      "price": 0
-    },
-    {
-      "id": "cybergrip",
-      "name": "Cybergrip",
-      "price": 35
-    },
-    {
-      "id": "grip3b",
-      "name": "Grip 3B",
-      "price": 20
-    },
-    {
-      "id": "gripPot",
-      "name": "Grip potencjometr",
-      "price": 45
     }
   ]
 }
