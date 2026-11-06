@@ -196,8 +196,9 @@ if (sessionStorage.getItem('auth') === '1') {
 }
 
 const STEPS = [
-  { id: 'machine', title: 'Maszyna' },
-  { id: 'controlPlug', title: 'Wtyczka sterowania' },
+  { id: 'brand', title: 'Marka' },
+  { id: 'plug', title: 'Wtyczka' },
+  { id: 'gasConnector', title: 'Złącze gazowe' },
   { id: 'cooling', title: 'Typ uchwytu' },
   { id: 'length', title: 'Długość' },
   { id: 'grip', title: 'Rękojeść' },
@@ -560,6 +561,11 @@ function renderStep(forceShow) {
 
   // Skip steps that don't apply (only when not forced)
   if (!forceShow) {
+    if (step.id === 'gasConnector' && (config.brand === 'Kemppi' || config.brand === 'Fronius')) {
+      config.gasConnector = 'Centralny';
+      nextStep();
+      return;
+    }
     if (step.id === 'neckColor') {
       const fam = data.neckFamilies?.find(f => f.id === config.neckFamily);
       if (!fam?.hasColor) { nextStep(); return; }
@@ -578,19 +584,26 @@ function renderStep(forceShow) {
   let html = `<h2 style="margin-bottom:16px">${step.title}</h2>`;
   html += '<div class="options">';
 
-  if (step.id === 'machine') {
-    data.machines.forEach(m => {
-      html += optionHTML(m.id, m.name, `+${m.price} ${data.currency}`, config.machine === m.id);
+  if (step.id === 'brand') {
+    (data.brands || []).forEach(b => {
+      html += optionHTML(b.id, b.name, '', config.brand === b.id);
     });
-  } else if (step.id === 'controlPlug') {
-    // Wtyczki sterowania – przypisane do maszyny
-    const plugs = data.controlPlugs || [];
-    const machinePlugs = plugs.filter(p => !p.machines || p.machines.includes(config.machine));
-    if (machinePlugs.length === 0) {
-      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak wtyczek dla tej maszyny</p>';
+  } else if (step.id === 'plug') {
+    const plugs = (data.plugs || []).filter(p => !p.brands || p.brands.includes(config.brand));
+    if (plugs.length === 0) {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak wtyczek dla tej marki</p>';
     }
-    machinePlugs.forEach(p => {
-      html += optionHTML(p.id, p.name + (p.pins ? ' (' + p.pins + ')' : ''), '', config.controlPlug === p.id);
+    plugs.forEach(p => {
+      const label = p.name + (p.pins ? ' (' + p.pins + ')' : '');
+      html += optionHTML(p.id, label, '', config.plug === p.id);
+    });
+  } else if (step.id === 'gasConnector') {
+    const connectors = (data.gasConnectors || []).filter(g => !g.brands || g.brands.includes(config.brand));
+    if (connectors.length === 0) {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak złączy dla tej marki</p>';
+    }
+    connectors.forEach(g => {
+      html += optionHTML(g.id, g.name, '', config.gasConnector === g.id);
     });
   } else if (step.id === 'cooling') {
     data.coolingTypes.forEach(t => {
