@@ -259,16 +259,11 @@
       "code": "9spaszyb21"
        },
        {
-      "id": "9spaM12",
-      "name": "9spa M12",
-      "price": 25,
-      "code": "9spaM12"
-        },
-       {
       "id": "8spaM12",
       "name": "8spa M12",
       "price": 25,
       "code": "8spaM12"
+        },
     }   
     }
   ]
