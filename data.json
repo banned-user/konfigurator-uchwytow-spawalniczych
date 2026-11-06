@@ -3,9 +3,9 @@
   "currency": "zł",
   "coolingTypes": [
     {
-      "id": "gazowy1",
-      "name": "Gazowy1",
-      "description": "Chłodzenie gazem1"
+      "id": "gazowy",
+      "name": "Gazowy",
+      "description": "Chłodzenie gazem"
     },
     {
       "id": "wodny",
@@ -241,10 +241,10 @@
       "code": "lincoln"
     },
     {
-      "id": "migatronic",
-      "name": "Migatronic",
+      "id": "magnum2pin",
+      "name": "Magnum 2pin",
       "price": 42,
-      "code": "migatronic"
+      "code": "2mag"
     },
     {
       "id": "ewm5pin",
