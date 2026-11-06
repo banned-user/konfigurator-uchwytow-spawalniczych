@@ -159,11 +159,13 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 const STEPS = [
   { id: 'cooling', title: 'Typ uchwytu' },
   { id: 'grip', title: 'Rękojeść' },
-  { id: 'neck', title: 'Fajka' },
+  { id: 'neckFamily', title: 'Rodzina fajki' },
   { id: 'size', title: 'Rozmiar SR' },
+  { id: 'neck', title: 'Fajka Flex/Sztywna' },
+  { id: 'neckColor', title: 'Kolor fajki' },
   { id: 'length', title: 'Długość' },
   { id: 'cover', title: 'Osłona' },
-  { id: 'coverColor', title: 'Kolor osłony' },
+  { id: 'coverVariant', title: 'Wariant osłony' },
   { id: 'leather', title: 'Skóra' },
   { id: 'leatherColor', title: 'Kolor skóry' },
   { id: 'machine', title: 'Maszyna' },
@@ -304,6 +306,11 @@ const DEFAULT_DATA = {
     { "id": "grip3b", "name": "Grip 3B", "price": 20 },
     { "id": "gripPot", "name": "Grip potencjometr", "price": 45 }
   ],
+  "neckFamilies": [
+    { "id": "tlbhd", "name": "TLB HD", "sizes": ["SR9", "SR17"], "hasColor": true, "colors": ["zielony", "fioletowy", "czerwony", "pomarańczowy"] },
+    { "id": "tlbred", "name": "TLB RED", "sizes": ["SR9", "SR17", "SR20"], "hasColor": false },
+    { "id": "std", "name": "STD", "sizes": ["SR9", "SR17", "SR20", "SR18", "SR26"], "hasColor": false }
+  ],
   "neckTypes": [
     { "id": "flex", "name": "Flex", "price": 25, "code": "Flex" },
     { "id": "sztywny", "name": "Sztywny", "price": 0, "code": "" }
@@ -320,16 +327,17 @@ const DEFAULT_DATA = {
     { "m": 10, "price": 105 }, { "m": 12, "price": 125 }, { "m": 14, "price": 145 }, { "m": 16, "price": 165 }
   ],
   "covers": [
-    { "id": "guma", "name": "Guma", "pricePerMeter": 4.5, "code": "Sguma" },
-    { "id": "tekstyl", "name": "Tekstyl", "pricePerMeter": 2.8, "code": "Stekstyl" }
+    { "id": "guma", "name": "Guma", "hasColors": false, "variants": [
+      { "id": "std", "name": "Standard", "pricePerMeter": 4.5 },
+      { "id": "swiss", "name": "Swiss", "pricePerMeter": 50 }
+    ] },
+    { "id": "tekstyl", "name": "Tekstyl", "hasColors": true, "pricePerMeter": 2.8, "colors": ["szary", "czarny", "granatowy", "czerwony", "pomarańczowy"] }
   ],
-  "coverColors": ["szary", "czarny", "granatowy", "czerwony", "pomarańczowy"],
   "leathers": [
-    { "id": "natural", "name": "Naturalna", "price": 55, "code": "natural" },
-    { "id": "syntetyk", "name": "Syntetyczna", "price": 32, "code": "syntetyk" },
-    { "id": "brak", "name": "Bez skóry", "price": 0, "code": "brak" }
+    { "id": "natural", "name": "Naturalna", "price": 55, "colors": ["czarna", "czerwona"] },
+    { "id": "syntetyk", "name": "Syntetyczna", "price": 32, "colors": ["czarna", "czerwona", "zielona", "fioletowa", "niebieska", "żółta", "pomarańczowa", "szara"] },
+    { "id": "brak", "name": "Bez skóry", "price": 0, "colors": [] }
   ],
-  "leatherColors": ["czarna", "brązowa", "szara", "beżowa", "czerwona"],
   "machines": [
     { "id": "kemppi7pin", "name": "Kemppi 7pin", "price": 38, "code": "kemppi 7pin" },
     { "id": "kemppi5pin", "name": "Kemppi 5pin", "price": 38, "code": "kemppi 5pin" },
@@ -403,11 +411,22 @@ function updateOrdersCount() {
 function renderProgress() {
   const el = document.getElementById('progress');
   el.innerHTML = STEPS.map((s, i) =>
-    `<div class="step ${i === currentStep ? 'active' : ''} ${i < currentStep ? 'done' : ''}">${s.title}</div>`
+    `<div class="step ${i === currentStep ? 'active' : ''} ${i < currentStep ? 'done' : ''}" onclick="jumpToStep(${i})" style="cursor:pointer">${s.title}</div>`
   ).join('');
 }
 
-function renderStep() {
+function jumpToStep(index) {
+  if (index >= 0 && index < STEPS.length) {
+    currentStep = index;
+    renderProgress();
+    renderStep(true);
+  }
+}
+
+function renderStep(forceShow) {
+  if (!data || !data.grips || !data.neckFamilies) {
+    data = DEFAULT_DATA;
+  }
   const step = STEPS[currentStep];
   const content = document.getElementById('stepContent');
   const btnNext = document.getElementById('btnNext');
@@ -426,6 +445,23 @@ function renderStep() {
     return;
   }
 
+  // Skip steps that don't apply (only when not forced)
+  if (!forceShow) {
+    if (step.id === 'neckColor') {
+      const fam = data.neckFamilies?.find(f => f.id === config.neckFamily);
+      if (!fam?.hasColor) { nextStep(); return; }
+    }
+    if (step.id === 'coverVariant') {
+      const cover = data.covers?.find(c => c.id === config.cover);
+      if (!cover || (!cover.variants && !cover.colors)) { nextStep(); return; }
+    }
+    if (step.id === 'leatherColor' && config.leather === 'brak') {
+      config.leatherColor = '';
+      nextStep();
+      return;
+    }
+  }
+
   let html = `<h2 style="margin-bottom:16px">${step.title}</h2>`;
   html += '<div class="options">';
 
@@ -437,19 +473,33 @@ function renderStep() {
     data.grips.forEach(g => {
       html += optionHTML(g.id, g.name, g.price ? `+${g.price} ${data.currency}` : '', config.grip === g.id);
     });
-  } else if (step.id === 'neck') {
-    data.neckTypes.forEach(t => {
-      html += optionHTML(t.id, t.name, `+${t.price} ${data.currency}`, config.neck === t.id);
+  } else if (step.id === 'neckFamily') {
+    data.neckFamilies.forEach(f => {
+      html += optionHTML(f.id, f.name, '', config.neckFamily === f.id);
     });
   } else if (step.id === 'size') {
-    let allowed = data.coolingTypes.find(c => c.id === config.cooling)?.sizes || [];
-    // Cybergrip ogranicza do SR9 i SR17
+    let allowed = data.neckFamilies.find(f => f.id === config.neckFamily)?.sizes || [];
     if (config.grip === 'cybergrip') {
       allowed = allowed.filter(s => s === 'SR9' || s === 'SR17');
+    }
+    if (allowed.length === 0) {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Najpierw wybierz rodzinę fajki</p>';
     }
     allowed.forEach(sid => {
       const s = data.sizes[sid];
       if (s) html += optionHTML(sid, s.name, `${s.amperage || ''} · +${s.price} ${data.currency}`, config.size === sid);
+    });
+  } else if (step.id === 'neck') {
+    data.neckTypes.forEach(t => {
+      html += optionHTML(t.id, t.name, t.price ? `+${t.price} ${data.currency}` : '', config.neck === t.id);
+    });
+  } else if (step.id === 'neckColor') {
+    const colors = data.neckFamilies.find(f => f.id === config.neckFamily)?.colors || [];
+    if (colors.length === 0) {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Ta rodzina fajki nie ma kolorów</p>';
+    }
+    colors.forEach(col => {
+      html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.neckColor === col);
     });
   } else if (step.id === 'length') {
     data.lengths.forEach(l => {
@@ -457,26 +507,36 @@ function renderStep() {
     });
   } else if (step.id === 'cover') {
     data.covers.forEach(c => {
-      const ppm = c.pricePerMeter || c.price || 0;
-      html += optionHTML(c.id, c.name, `${ppm} ${data.currency}/m`, config.cover === c.id);
+      html += optionHTML(c.id, c.name, '', config.cover === c.id);
     });
-  } else if (step.id === 'coverColor') {
-    data.coverColors.forEach(col => {
-      html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.coverColor === col);
-    });
+  } else if (step.id === 'coverVariant') {
+    const cover = data.covers.find(c => c.id === config.cover);
+    if (!cover) {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Najpierw wybierz osłonę</p>';
+    } else if (cover.variants) {
+      cover.variants.forEach(v => {
+        html += optionHTML(v.id, v.name, `${v.pricePerMeter} ${data.currency}/m`, config.coverVariant === v.id);
+      });
+    } else if (cover.colors) {
+      cover.colors.forEach(col => {
+        html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.coverVariant === col);
+      });
+    } else {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Ta osłona nie ma wariantów</p>';
+    }
   } else if (step.id === 'leather') {
     data.leathers.forEach(l => {
-      html += optionHTML(l.id, l.name, `+${l.price} ${data.currency}`, config.leather === l.id);
+      html += optionHTML(l.id, l.name, l.price ? `+${l.price} ${data.currency}` : '', config.leather === l.id);
     });
   } else if (step.id === 'leatherColor') {
-    if (config.leather === 'brak') {
-      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak skóry – pomijamy kolor</p>';
-      config.leatherColor = '';
-    } else {
-      data.leatherColors.forEach(col => {
-        html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.leatherColor === col);
-      });
+    const leather = data.leathers.find(l => l.id === config.leather);
+    const colors = leather?.colors || [];
+    if (colors.length === 0) {
+      html += '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">Brak kolorów dla wybranej skóry</p>';
     }
+    colors.forEach(col => {
+      html += optionHTML(col, col.charAt(0).toUpperCase() + col.slice(1), '', config.leatherColor === col);
+    });
   } else if (step.id === 'machine') {
     data.machines.forEach(m => {
       html += optionHTML(m.id, m.name, `+${m.price} ${data.currency}`, config.machine === m.id);
@@ -498,17 +558,26 @@ function optionHTML(id, name, price, selected) {
 function selectOption(stepId, value) {
   if (stepId === 'length') value = Number(value);
   config[stepId] = value;
-  if (stepId === 'cooling' || stepId === 'grip') {
+  if (stepId === 'cooling' || stepId === 'grip' || stepId === 'neckFamily') {
     delete config.size;
+    if (stepId === 'neckFamily') delete config.neckColor;
   }
-  if (stepId === 'leather' && value === 'brak') {
-    config.leatherColor = '';
-  }
+  if (stepId === 'cover') delete config.coverVariant;
+  if (stepId === 'leather' && value === 'brak') config.leatherColor = '';
   renderStep();
 }
 
 function isStepComplete() {
   const step = STEPS[currentStep];
+  if (!data) return false;
+  if (step.id === 'neckColor') {
+    const fam = data.neckFamilies?.find(f => f.id === config.neckFamily);
+    if (!fam?.hasColor) return true;
+  }
+  if (step.id === 'coverVariant') {
+    const cover = data.covers?.find(c => c.id === config.cover);
+    if (!cover || (!cover.variants && !cover.colors)) return true;
+  }
   if (step.id === 'leatherColor' && config.leather === 'brak') return true;
   return config[step.id] !== undefined && config[step.id] !== null && config[step.id] !== '';
 }
@@ -547,12 +616,20 @@ function calculatePrice() {
   if (neck) total += neck.price || 0;
   const lengthObj = data.lengths.find(l => l.m === config.length);
   if (lengthObj) total += lengthObj.price || 0;
+
   const cover = data.covers.find(c => c.id === config.cover);
   if (cover) {
     const meters = getCoverMeters();
-    const ppm = cover.pricePerMeter || cover.price || 0;
+    let ppm = 0;
+    if (cover.variants) {
+      const v = cover.variants.find(x => x.id === config.coverVariant);
+      ppm = v?.pricePerMeter || 0;
+    } else {
+      ppm = cover.pricePerMeter || 0;
+    }
     total += meters * ppm;
   }
+
   const leather = data.leathers.find(l => l.id === config.leather);
   if (leather) total += leather.price || 0;
   const machine = data.machines.find(m => m.id === config.machine);
@@ -562,27 +639,29 @@ function calculatePrice() {
 
 function generateCode() {
   const size = config.size || '';
+  const neckFam = data.neckFamilies.find(f => f.id === config.neckFamily);
+  const neckFamCode = neckFam ? neckFam.name.replace(/\s+/g, '') : '';
   const neck = data.neckTypes.find(n => n.id === config.neck);
   const neckCode = neck && neck.code ? neck.code : '';
   const grip = data.grips.find(g => g.id === config.grip);
   const gripCode = grip ? grip.name.replace(/\s+/g, '') : '';
   const length = config.length ? config.length + 'M' : '';
   const cover = data.covers.find(c => c.id === config.cover);
-  const coverCode = cover ? cover.code : '';
+  const coverCode = cover ? cover.id : '';
   const leather = data.leathers.find(l => l.id === config.leather);
-  const leatherCode = leather && leather.code !== 'brak' ? leather.code : '';
-  const leatherColor = config.leatherColor || '';
-  const coverColor = config.coverColor || '';
+  const leatherCode = leather && leather.id !== 'brak' ? leather.id : '';
   const machine = data.machines.find(m => m.id === config.machine);
   const machineCode = machine ? machine.code : '';
 
   let parts = [size];
   if (gripCode) parts.push(gripCode);
+  if (neckFamCode) parts.push(neckFamCode);
   if (neckCode) parts.push(neckCode);
+  if (config.neckColor) parts.push(config.neckColor);
   if (length) parts.push(length);
   if (coverCode) parts.push(coverCode);
-  if (leatherCode) parts.push('Skora ' + leatherColor + ' ' + leatherCode);
-  if (coverColor) parts.push(coverColor);
+  if (config.coverVariant) parts.push(config.coverVariant);
+  if (leatherCode) parts.push('Skora ' + (config.leatherColor || '') + ' ' + leatherCode);
   if (machineCode) parts.push(machineCode);
 
   return parts.filter(Boolean).join('_').replace(/\s+/g, ' ').trim();
@@ -591,21 +670,21 @@ function generateCode() {
 function renderSummary(content) {
   const price = calculatePrice();
   const code = generateCode();
-  const coverMeters = getCoverMeters();
-  const cover = data.covers.find(c => c.id === config.cover);
-  const coverPrice = cover ? (coverMeters * (cover.pricePerMeter || cover.price || 0)) : 0;
 
   let html = '<h2 style="margin-bottom:16px">Podsumowanie</h2>';
   html += '<div class="summary">';
   html += row('Typ', data.coolingTypes.find(c => c.id === config.cooling)?.name || '-');
   html += row('Rękojeść', data.grips.find(g => g.id === config.grip)?.name || '-');
-  html += row('Fajka', data.neckTypes.find(n => n.id === config.neck)?.name || '-');
+  html += row('Rodzina fajki', data.neckFamilies.find(f => f.id === config.neckFamily)?.name || '-');
   html += row('Rozmiar', data.sizes[config.size]?.name || '-');
+  html += row('Fajka', data.neckTypes.find(n => n.id === config.neck)?.name || '-');
+  if (config.neckColor) html += row('Kolor fajki', config.neckColor);
   html += row('Długość', (config.length || '-') + ' m');
-  html += row('Osłona', (data.covers.find(c => c.id === config.cover)?.name || '-') + ' (' + coverMeters + ' m, ' + Math.round(coverPrice) + ' zł)');
-  html += row('Kolor osłony', config.coverColor || '-');
+  const cover = data.covers.find(c => c.id === config.cover);
+  html += row('Osłona', cover?.name || '-');
+  if (config.coverVariant) html += row('Wariant osłony', config.coverVariant);
   html += row('Skóra', data.leathers.find(l => l.id === config.leather)?.name || '-');
-  if (config.leather !== 'brak') html += row('Kolor skóry', config.leatherColor || '-');
+  if (config.leather !== 'brak' && config.leatherColor) html += row('Kolor skóry', config.leatherColor);
   html += row('Maszyna', data.machines.find(m => m.id === config.machine)?.name || '-');
   html += '</div>';
   html += '<div class="product-code" id="productCode">' + code + '</div>';
