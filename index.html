@@ -176,6 +176,7 @@ function checkPassword() {
   const input = document.getElementById('pwInput').value;
   if (input === PAGE_PASSWORD) {
     sessionStorage.setItem('auth', '1');
+    localStorage.removeItem('weldingData');
     document.getElementById('passwordGate').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
     if (typeof init === 'function') init();
@@ -396,6 +397,7 @@ function removeOrder(id) {
 }
 
 function init() {
+  localStorage.removeItem('weldingData');
   data = DEFAULT_DATA;
   orders.forEach(o => {
     if (!o.status) o.status = 'todo';
@@ -409,7 +411,6 @@ function init() {
   renderProgress();
   renderStep();
   document.getElementById('section-config').classList.add('active');
-  // Baza zawsze z GitHuba przy starcie
   loadDataFromGitHub();
 }
 
