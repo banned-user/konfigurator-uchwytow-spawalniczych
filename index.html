@@ -420,40 +420,41 @@ async function loadDataFromGitHub() {
   if (statusEl) statusEl.textContent = 'Ładowanie bazy...';
   if (infoEl) infoEl.textContent = 'data_ładowanie...';
 
-  // Tylko raw GitHub – bez jsDelivr (mocno cache'uje stare wersje)
-  const url = 'https://raw.githubusercontent.com/banned-user/konfigurator-uchwytow-spawalniczych/main/data.json';
+  const urls = [
+    'https://cdn.jsdelivr.net/gh/banned-user/konfigurator-uchwytow-spawalniczych@main/data.json',
+    'https://raw.githubusercontent.com/banned-user/konfigurator-uchwytow-spawalniczych/main/data.json'
+  ];
 
-  try {
-    const res = await fetch(url + '?t=' + Date.now() + Math.random(), {
-      cache: 'no-store',
-      mode: 'cors',
-      headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const loaded = await res.json();
-    if (!loaded || !loaded.grips || !loaded.neckFamilies) {
-      throw new Error('Niepoprawny format bazy');
+  let lastErr = null;
+  for (const base of urls) {
+    try {
+      const res = await fetch(base + '?t=' + Date.now() + Math.random(), {
+        cache: 'no-store',
+        mode: 'cors'
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const loaded = await res.json();
+      if (!loaded || !loaded.grips || !loaded.neckFamilies) {
+        throw new Error('Niepoprawny format bazy');
+      }
+      data = loaded;
+      let stamp = new Date().toISOString().replace('T', '_').slice(0, 16);
+      const lm = res.headers.get('last-modified');
+      if (lm) stamp = new Date(lm).toISOString().replace('T', '_').slice(0, 16);
+      if (infoEl) infoEl.textContent = 'data_' + stamp;
+      if (statusEl) statusEl.textContent = 'Baza OK';
+      if (typeof renderStep === 'function') renderStep();
+      return true;
+    } catch (err) {
+      lastErr = err;
+      console.warn('Próba nieudana:', base, err.message);
     }
-
-    data = loaded;
-    let stamp = 'nieznana';
-    const lm = res.headers.get('last-modified');
-    if (lm) {
-      const d = new Date(lm);
-      stamp = d.toISOString().replace('T', '_').slice(0, 16);
-    } else {
-      stamp = new Date().toISOString().replace('T', '_').slice(0, 16);
-    }
-    if (infoEl) infoEl.textContent = 'data_' + stamp;
-    if (statusEl) statusEl.textContent = 'Baza OK';
-    if (typeof renderStep === 'function') renderStep();
-    return true;
-  } catch (err) {
-    if (statusEl) statusEl.textContent = 'Błąd bazy';
-    if (infoEl) infoEl.textContent = 'data_błąd';
-    console.warn(err);
-    return false;
   }
+
+  if (statusEl) statusEl.textContent = 'Błąd bazy: ' + (lastErr?.message || 'nieznany');
+  if (infoEl) infoEl.textContent = 'data_błąd';
+  console.error(lastErr);
+  return false;
 }
 
 function showSection(name) {
