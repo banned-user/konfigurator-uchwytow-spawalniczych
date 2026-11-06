@@ -8,9 +8,9 @@
       "description": "Chłodzenie gazem1"
     },
     {
-      "id": "wodny",
-      "name": "Wodny",
-      "description": "Chłodzenie wodą"
+      "id": "wodny2",
+      "name": "Wodny2",
+      "description": "Chłodzenie wodą2"
     }
   ],
   "grips": [
