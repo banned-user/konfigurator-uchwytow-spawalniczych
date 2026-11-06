@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Konfigurator Uchwyty Spawalnicze</title>
+<title>Konfigurator</title>
 <style>
 :root {
   --bg: #0f1419;
@@ -144,14 +144,14 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
   <div id="settingsPanel" style="display:none;margin-bottom:12px;padding:12px;background:#1a2332;border-radius:8px;border:1px solid var(--border)">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <button class="secondary" onclick="loadDataFromGitHub()">Odśwież bazę z GitHuba</button>
+      <button class="secondary" onclick="loadDataFromGitHub()">Odśwież bazę</button>
       <span id="dataStatus" style="font-size:0.85rem;color:var(--accent2)"></span>
     </div>
   </div>
 
   <div id="section-config" class="section">
-    <h1>Konfigurator uchwytów spawalniczych</h1>
-    <p class="subtitle">Wybierz krok po kroku – gotowy kod do realizacji na końcu</p>
+    <h1>Konfigurator</h1>
+    <p class="subtitle">Wybierz krok po kroku</p>
     <div class="progress" id="progress"></div>
     <div class="card" id="stepContent"></div>
     <div class="nav">
@@ -198,10 +198,10 @@ if (sessionStorage.getItem('auth') === '1') {
 const STEPS = [
   { id: 'cooling', title: 'Typ uchwytu' },
   { id: 'grip', title: 'Rękojeść' },
-  { id: 'neckFamily', title: 'Rodzina fajki' },
+  { id: 'neckFamily', title: 'Rodzaj Fajki' },
   { id: 'size', title: 'Rozmiar SR' },
   { id: 'neck', title: 'Fajka Flex/Sztywna' },
-  { id: 'neckColor', title: 'Kolor fajki' },
+  { id: 'neckColor', title: 'Kolor Fajki' },
   { id: 'length', title: 'Długość' },
   { id: 'cover', title: 'Osłona' },
   { id: 'coverVariant', title: 'Wariant osłony' },
@@ -563,13 +563,16 @@ function renderStep(forceShow) {
     });
   } else if (step.id === 'grip') {
     data.grips.forEach(g => {
-      // Cybergrip nie dla SR18, SR20, SR26
+      // Cybergrip nie dla wodnego i nie dla SR18/SR20/SR26
+      if ((g.id === 'Cybergrip' || g.id === 'cybergrip') && (config.cooling === 'Wodny' || config.cooling === 'wodny')) return;
       const size = config.size;
-      if (g.id === 'Cybergrip' && (size === 'SR18' || size === 'SR20' || size === 'SR26')) return;
+      if ((g.id === 'Cybergrip' || g.id === 'cybergrip') && (size === 'SR18' || size === 'SR20' || size === 'SR26')) return;
       html += optionHTML(g.id, g.name, g.price ? `+${g.price} ${data.currency}` : '', config.grip === g.id);
     });
   } else if (step.id === 'neckFamily') {
     data.neckFamilies.forEach(f => {
+      // TLB HD nie dla wodnego
+      if ((f.id === 'TLB_HD' || f.id === 'tlbhd') && (config.cooling === 'Wodny' || config.cooling === 'wodny')) return;
       html += optionHTML(f.id, f.name, '', config.neckFamily === f.id);
     });
   } else if (step.id === 'size') {
@@ -668,9 +671,10 @@ function selectOption(stepId, value) {
   config[stepId] = value;
   if (stepId === 'cooling') {
     delete config.size;
-    // Wodny nie ma Cybergrip
-    if (value === 'wodny' && config.grip === 'cybergrip') {
-      delete config.grip;
+    // Wodny nie ma Cybergrip i TLB HD
+    if ((value === 'Wodny' || value === 'wodny')) {
+      if (config.grip === 'Cybergrip' || config.grip === 'cybergrip') delete config.grip;
+      if (config.neckFamily === 'TLB_HD' || config.neckFamily === 'tlbhd') delete config.neckFamily;
     }
   }
   if (stepId === 'grip' || stepId === 'neckFamily') {
