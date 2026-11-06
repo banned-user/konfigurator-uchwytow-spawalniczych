@@ -419,36 +419,24 @@ async function loadDataFromGitHub() {
   if (statusEl) statusEl.textContent = 'Ładowanie bazy...';
   if (infoEl) infoEl.textContent = 'data_ładowanie...';
 
-  const urls = [
-    'https://cdn.jsdelivr.net/gh/banned-user/konfigurator-uchwytow-spawalniczych@main/data.json',
-    'https://raw.githubusercontent.com/banned-user/konfigurator-uchwytow-spawalniczych/main/data.json'
-  ];
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  // Tylko raw GitHub – bez jsDelivr (mocno cache'uje stare wersje)
+  const url = 'https://raw.githubusercontent.com/banned-user/konfigurator-uchwytow-spawalniczych/main/data.json';
 
   try {
-    // Równoległe próby – bierzemy pierwszą udaną
-    const promises = urls.map(base =>
-      fetch(base + '?t=' + Date.now(), {
-        cache: 'no-store',
-        mode: 'cors',
-        signal: controller.signal
-      }).then(async res => {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const loaded = await res.json();
-        if (!loaded || !loaded.grips || !loaded.neckFamilies) throw new Error('Zły format');
-        return { loaded, headers: res.headers };
-      })
-    );
+    const res = await fetch(url + '?t=' + Date.now() + Math.random(), {
+      cache: 'no-store',
+      mode: 'cors',
+      headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const loaded = await res.json();
+    if (!loaded || !loaded.grips || !loaded.neckFamilies) {
+      throw new Error('Niepoprawny format bazy');
+    }
 
-    const result = await Promise.any(promises);
-    clearTimeout(timeout);
-    controller.abort();
-
-    data = result.loaded;
+    data = loaded;
     let stamp = 'nieznana';
-    const lm = result.headers.get('last-modified');
+    const lm = res.headers.get('last-modified');
     if (lm) {
       const d = new Date(lm);
       stamp = d.toISOString().replace('T', '_').slice(0, 16);
@@ -460,7 +448,6 @@ async function loadDataFromGitHub() {
     if (typeof renderStep === 'function') renderStep();
     return true;
   } catch (err) {
-    clearTimeout(timeout);
     if (statusEl) statusEl.textContent = 'Błąd bazy';
     if (infoEl) infoEl.textContent = 'data_błąd';
     console.warn(err);
