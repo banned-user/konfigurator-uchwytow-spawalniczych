@@ -1,6 +1,190 @@
 {
   "basePrice": 400,
   "currency": "zł",
+  "brands": [
+    {
+      "id": "Spartus",
+      "name": "Spartus"
+    },
+    {
+      "id": "Ewm",
+      "name": "EWM"
+    },
+    {
+      "id": "Kemppi",
+      "name": "Kemppi"
+    },
+    {
+      "id": "Lincoln",
+      "name": "Lincoln"
+    },
+    {
+      "id": "Esab",
+      "name": "ESAB"
+    },
+    {
+      "id": "Fronius",
+      "name": "Fronius"
+    },
+    {
+      "id": "Magnum",
+      "name": "Magnum"
+    },
+    {
+      "id": "Sherman",
+      "name": "Sherman"
+    },
+    {
+      "id": "Inna",
+      "name": "Inna"
+    }
+  ],
+  "plugs": [
+    {
+      "id": "Spartus_8SPA",
+      "name": "8SPA",
+      "pins": "3-2",
+      "brands": [
+        "Spartus"
+      ]
+    },
+    {
+      "id": "Spartus_9SPA",
+      "name": "9SPA",
+      "pins": "8-9",
+      "brands": [
+        "Spartus"
+      ]
+    },
+    {
+      "id": "Spartus_2PIN",
+      "name": "2PIN",
+      "pins": "",
+      "brands": [
+        "Spartus"
+      ]
+    },
+    {
+      "id": "Ewm_5pin",
+      "name": "5 pin",
+      "pins": "A-B",
+      "brands": [
+        "Ewm",
+        "Lincoln"
+      ]
+    },
+    {
+      "id": "Ewm_8pin",
+      "name": "8 pin",
+      "pins": "A-C",
+      "brands": [
+        "Ewm"
+      ]
+    },
+    {
+      "id": "Ewm_19pol",
+      "name": "19 pol",
+      "pins": "J-R",
+      "brands": [
+        "Ewm"
+      ]
+    },
+    {
+      "id": "Kemppi_7pin",
+      "name": "7pin",
+      "pins": "D-G",
+      "brands": [
+        "Kemppi"
+      ]
+    },
+    {
+      "id": "Fronius_8pin",
+      "name": "8 pin",
+      "pins": "B-E",
+      "brands": [
+        "Fronius"
+      ]
+    },
+    {
+      "id": "Fronius_9pin",
+      "name": "9 pin",
+      "pins": "5-9",
+      "brands": [
+        "Fronius"
+      ]
+    },
+    {
+      "id": "Esab_5pin",
+      "name": "5 pin",
+      "pins": "5-3",
+      "brands": [
+        "Esab"
+      ]
+    },
+    {
+      "id": "Magnum_CNC",
+      "name": "CNC Pontig",
+      "pins": "8-9",
+      "brands": [
+        "Magnum"
+      ]
+    },
+    {
+      "id": "Sherman_5pin",
+      "name": "5 pin",
+      "pins": "1-2",
+      "brands": [
+        "Sherman"
+      ]
+    },
+    {
+      "id": "Inna_uniwersalna",
+      "name": "Uniwersalna",
+      "pins": "",
+      "brands": [
+        "Inna"
+      ]
+    }
+  ],
+  "gasConnectors": [
+    {
+      "id": "M12",
+      "name": "M12",
+      "brands": [
+        "Spartus",
+        "Magnum",
+        "Sherman"
+      ]
+    },
+    {
+      "id": "Szyb-21",
+      "name": "Szyb-21",
+      "brands": [
+        "Spartus",
+        "Ewm",
+        "Esab",
+        "Magnum",
+        "Sherman",
+        "Inna"
+      ]
+    },
+    {
+      "id": "1/4",
+      "name": "1/4",
+      "brands": [
+        "Ewm",
+        "Lincoln"
+      ]
+    },
+    {
+      "id": "Centralny",
+      "name": "Wtyk centralny",
+      "brands": [
+        "Kemppi",
+        "Fronius"
+      ]
+    }
+  ],
   "coolingTypes": [
     {
       "id": "Gazowy",
@@ -216,147 +400,6 @@
       "name": "Bez_skóry",
       "price": 0,
       "colors": []
-    }
-  ],
-  "machines": [
-    {
-      "id": "9SPA_Szyb-21",
-      "name": "9SPA_Szyb-21",
-      "price": 50,
-      "code": "9SPA_Szyb-21",
-      "unsupportedGrips": [
-        "Grip3b",
-        "GripPot"
-      ]
-    },
-    {
-      "id": "9SPA_M12",
-      "name": "9SPA_M12",
-      "price": 50,
-      "code": "9SPA_M12"
-    },
-    {
-      "id": "Kemppi_7pin",
-      "name": "Kemppi_7pin",
-      "price": 80,
-      "code": "Kemppi_7pin"
-    },
-    {
-      "id": "Fronius_9pin",
-      "name": "Fronius_9pin",
-      "price": 250,
-      "code": "Fronius_9pin"
-    },
-    {
-      "id": "ESAB_2pin",
-      "name": "ESAB_2pin",
-      "price": 70,
-      "code": "ESAB_2pin"
-    },
-    {
-      "id": "Lincoln_5pin",
-      "name": "Lincoln_5pin",
-      "price": 80,
-      "code": "Lincoln_5pin"
-    },
-    {
-      "id": "Magnum_2pin",
-      "name": "Magnum_2pin",
-      "price": 50,
-      "code": "Magnum_2pin"
-    },
-    {
-      "id": "EWM_5pin",
-      "name": "EWM_5pin",
-      "price": 80,
-      "code": "EWM_5pin"
-    },
-    {
-      "id": "EWM_8pin",
-      "name": "EWM_8pin",
-      "price": 150,
-      "code": "EWM_8pin"
-    },
-    {
-      "id": "8SPA_Szyb-21",
-      "name": "8SPA_Szyb-21",
-      "price": 50,
-      "code": "8SPA_Szyb-21"
-    }
-  ],
-  "controlPlugs": [
-    {
-      "id": "9SPA_8-9",
-      "name": "9SPA 8-9",
-      "pins": "8-9",
-      "machines": [
-        "9SPA_Szyb-21",
-        "9SPA_M12"
-      ]
-    },
-    {
-      "id": "8SPA_8-9",
-      "name": "8SPA 8-9",
-      "pins": "8-9",
-      "machines": [
-        "8SPA_Szyb-21"
-      ]
-    },
-    {
-      "id": "EWM_A-B",
-      "name": "EWM A-B",
-      "pins": "A-B",
-      "machines": [
-        "EWM_5pin"
-      ]
-    },
-    {
-      "id": "EWM_1-2-3",
-      "name": "EWM 1-2-3",
-      "pins": "1-2-3",
-      "machines": [
-        "EWM_8pin"
-      ]
-    },
-    {
-      "id": "Kemppi_7pin_plug",
-      "name": "Kemppi 7pin",
-      "pins": "standard",
-      "machines": [
-        "Kemppi_7pin"
-      ]
-    },
-    {
-      "id": "Fronius_9pin_plug",
-      "name": "Fronius 9pin",
-      "pins": "standard",
-      "machines": [
-        "Fronius_9pin"
-      ]
-    },
-    {
-      "id": "ESAB_2pin_plug",
-      "name": "ESAB 2pin",
-      "pins": "standard",
-      "machines": [
-        "ESAB_2pin"
-      ]
-    },
-    {
-      "id": "Lincoln_5pin_plug",
-      "name": "Lincoln 5pin",
-      "pins": "standard",
-      "machines": [
-        "Lincoln_5pin"
-      ]
-    },
-    {
-      "id": "Magnum_2pin_plug",
-      "name": "Magnum 2pin",
-      "pins": "standard",
-      "machines": [
-        "Magnum_2pin"
-      ]
     }
   ]
 }
