@@ -41,17 +41,17 @@
   ],
   "plugs": [
     {
-      "id": "Spartus_8SPA",
-      "name": "8SPA",
-      "pins": "3-2",
+      "id": "Spartus_9SPA",
+      "name": "9SPA",
+      "pins": "8-9",
       "brands": [
         "Spartus"
       ]
     },
     {
-      "id": "Spartus_9SPA",
-      "name": "9SPA",
-      "pins": "8-9",
+      "id": "Spartus_8SPA",
+      "name": "8SPA",
+      "pins": "3-2",
       "brands": [
         "Spartus"
       ]
