@@ -278,6 +278,17 @@ let syncUrl = localStorage.getItem('weldingSyncUrl') || 'https://script.google.c
 let autoRefreshTimer = null;
 let knownOrderIds = new Set();
 
+function formatDatePL(date) {
+  const d = new Date(date);
+  const pl = new Date(d.toLocaleString('en-US', { timeZone: 'Europe/Warsaw' }));
+  const y = pl.getFullYear();
+  const m = String(pl.getMonth() + 1).padStart(2, '0');
+  const day = String(pl.getDate()).padStart(2, '0');
+  const h = String(pl.getHours()).padStart(2, '0');
+  const min = String(pl.getMinutes()).padStart(2, '0');
+  return `${y}-${m}-${day} ${h}:${min}`;
+}
+
 function playNotificationSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -488,12 +499,11 @@ async function loadDataFromGitHub() {
   const apiUrl = 'https://api.github.com/repos/banned-user/konfigurator-uchwytow-spawalniczych/commits?path=data.json&per_page=1&t=' + Date.now();
   try {
     const commitRes = await fetch(apiUrl, { cache: 'no-store' });
-    let stamp = new Date().toISOString().replace('T', '_').slice(0, 16);
+    let stamp = formatDatePL(new Date());
     if (commitRes.ok) {
       const commits = await commitRes.json();
       if (commits && commits[0] && commits[0].commit && commits[0].commit.committer) {
-        const d = new Date(commits[0].commit.committer.date);
-        stamp = d.toISOString().replace('T', ' ').slice(0, 16);
+        stamp = formatDatePL(commits[0].commit.committer.date);
       }
     }
     const dataRes = await fetch('https://api.github.com/repos/banned-user/konfigurator-uchwytow-spawalniczych/contents/data.json?t=' + Date.now(), {
@@ -618,6 +628,14 @@ function renderStep(forceShow) {
 
   // Skip steps that don't apply (only when not forced)
   if (!forceShow) {
+    if (step.id === 'cooling' && configuratorMode === 'model' && config.model) {
+      const model = machineModels.find(m => m.brand === config.brand && m.model === config.model);
+      if (model && model.cooling === 'Gazowy') {
+        config.cooling = 'Gazowy';
+        nextStep();
+        return;
+      }
+    }
     if (step.id === 'gasConnector' && (config.brand === 'Kemppi' || config.brand === 'Fronius')) {
       config.gasConnector = 'Centralny';
       nextStep();
@@ -934,8 +952,12 @@ function renderSummary(content) {
   let html = '<h2 style="margin-bottom:16px">Podsumowanie</h2>';
   html += '<div class="summary">';
   html += row('Marka', data.brands?.find(b => b.id === config.brand)?.name || config.brand || '-');
-  html += row('Wtyczka', (data.plugs?.find(p => p.id === config.plug)?.name || config.plug || '-') + (data.plugs?.find(p => p.id === config.plug)?.pins ? ' (' + data.plugs.find(p => p.id === config.plug).pins + ')' : ''));
-  html += row('Złącze gazowe', data.gasConnectors?.find(g => g.id === config.gasConnector)?.name || config.gasConnector || '-');
+  if (config.model) html += row('Model', config.model);
+  const plugId = config.plug || (config.model ? machineModels.find(m => m.brand === config.brand && m.model === config.model)?.plug : '');
+  const plug = data.plugs?.find(p => p.id === plugId);
+  html += row('Wtyczka', plug ? plug.name + (plug.pins ? ' (' + plug.pins + ')' : '') : (plugId || '-'));
+  const gasId = config.gasConnector || (config.model ? machineModels.find(m => m.brand === config.brand && m.model === config.model)?.gas : '');
+  html += row('Złącze gazowe', data.gasConnectors?.find(g => g.id === gasId)?.name || gasId || '-');
   html += row('Typ', data.coolingTypes.find(c => c.id === config.cooling)?.name || '-');
   html += row('Rękojeść', data.grips.find(g => g.id === config.grip)?.name || '-');
   html += row('Rodzaj fajki', data.neckFamilies.find(f => f.id === config.neckFamily)?.name || '-');
@@ -959,7 +981,7 @@ function renderSummary(content) {
   html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Telefon</label>';
   html += '<input type="text" id="customerPhone" placeholder="Nr telefonu" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);margin-bottom:12px;font-size:1rem">';
   html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Uwagi</label>';
-  html += '<textarea id="orderNotes" rows="3" placeholder="Dodatkowe uwagi do zamówienia" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);resize:vertical;font-size:1rem"></textarea>';
+  html += '<textarea id="orderNotes" rows="3" placeholder="Dodatkowe uwagi do zamówienia" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);resize:vertical;font-size:1rem;font-family:inherit"></textarea>';
   html += '</div>';
   html += '<div class="nav" style="margin-top:20px">';
   html += '<button class="success" onclick="saveOrder(\'todo\')">Do realizacji</button>';
@@ -1031,7 +1053,7 @@ function saveOrder(status) {
       notes,
       customName,
       config: { ...config },
-      date: new Date().toISOString()
+      date: formatDatePL(new Date()),
     };
     orders.push(order);
     alert('Zamówienie zapisane!');
@@ -1093,7 +1115,7 @@ function renderOrders() {
       <div class="meta">${o.date} · ${o.price} zł</div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
         <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="toggleDetails('${detailsId}')">Podgląd</button>
-        <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="editOrder(${o.id})">Edytuj</button>
+        ${currentOrdersView !== 'archived' ? `<button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="editOrder(${o.id})">Edytuj</button>` : ''}
         ${actions}
         <button class="danger" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="removeOrder(${o.id})">Usuń</button>
       </div>
