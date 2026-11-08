@@ -59,7 +59,7 @@
     {
       "id": "Spartus_2PIN",
       "name": "2PIN",
-      "pins": "",
+      "pins": "1-2",
       "brands": [
         "Spartus"
       ]
