@@ -1115,7 +1115,7 @@ function renderOrders() {
       <div class="code">${o.code}</div>
       ${o.customName ? `<div style="margin-top:2px;font-weight:600">${o.customName}</div>` : ''}
       ${o.customerName ? `<div style="margin-top:4px">${o.customerName}${o.customerPhone ? ' · ' + o.customerPhone : ''}</div>` : ''}
-      ${o.notes ? `<div style="margin-top:4px;color:var(--muted);font-size:0.9rem">${o.notes}</div>` : ''}
+      ${o.notes ? `<div style="margin-top:6px;color:var(--text);font-size:1.05rem;font-weight:500">${o.notes}</div>` : ''}
       <div class="meta">${o.date} · ${o.price} zł</div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
         <button class="secondary" style="flex:none;padding:8px 12px;font-size:0.85rem" onclick="toggleDetails('${detailsId}')">Podgląd</button>
