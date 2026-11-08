@@ -201,26 +201,8 @@ if (sessionStorage.getItem('auth') === '1') {
   if (typeof init === 'function') init();
 }
 
-// Modele spawarek (z szablonu)
-machineModels = [
-  { brand: 'Spartus', model: '203', cooling: 'Gazowy', grips: ['Grip','Cybergrip'], plug: '2pin', pins: '1-2', gas: 'M12' },
-  { brand: 'Spartus', model: '205', cooling: 'Gazowy', grips: ['Grip','Cybergrip','Grip3b','GripPot'], plug: 'Spartus_9SPA', pins: '8-9', gas: 'M12' },
-  { brand: 'Spartus', model: '208', cooling: 'Gazowy', grips: ['Grip','Cybergrip','Grip3b','GripPot'], plug: 'Spartus_9SPA', pins: '8-9', gas: 'M12' },
-  { brand: 'Spartus', model: '220', cooling: 'Gazowy', grips: ['Grip','Cybergrip','Grip3b','GripPot'], plug: 'Spartus_9SPA', pins: '8-9', gas: 'M12' },
-  { brand: 'Spartus', model: '206', cooling: 'Gazowy', grips: ['Grip','Cybergrip'], plug: 'Spartus_9SPA', pins: '8-9', gas: 'Szyb-21' },
-  { brand: 'Spartus', model: '200xp', cooling: 'Gazowy', grips: ['Grip','Cybergrip'], plug: 'Spartus_9SPA', pins: '8-9', gas: 'Szyb-21' },
-  { brand: 'Spartus', model: '2000', cooling: 'oba', grips: ['Grip','Cybergrip','Grip3b','GripPot'], plug: 'Spartus_9SPA', pins: '8-9', gas: 'M12' },
-  { brand: 'Spartus', model: '225', cooling: 'oba', grips: ['Grip','Cybergrip','Grip3b','GripPot'], plug: 'Spartus_9SPA', pins: '8-9', gas: 'M12' },
-  { brand: 'Ewm', model: 'PicoTig', cooling: 'Gazowy', grips: ['Grip','Cybergrip'], plug: 'Ewm_5pin', pins: 'A-B', gas: '1/4' },
-  { brand: 'Ewm', model: 'Tetrix230_5pin', cooling: 'oba', grips: ['Grip','Cybergrip'], plug: 'Ewm_5pin', pins: 'A-B', gas: '1/4' },
-  { brand: 'Ewm', model: 'Tetrix230_8pin', cooling: 'oba', grips: ['Grip','Cybergrip','Grip3b','GripPot'], plug: 'Ewm_8pin', pins: 'A-C', gas: '1/4' },
-  { brand: 'Kemppi', model: 'Evo', cooling: 'Gazowy', grips: ['Grip','Cybergrip'], plug: 'Kemppi_7pin', pins: 'D-G', gas: 'Centralny' },
-  { brand: 'Kemppi', model: '235', cooling: 'oba', grips: ['Grip','Cybergrip','GripPot'], plug: 'Kemppi_7pin', pins: 'D-G=F', gas: 'Centralny' },
-  { brand: 'Kemppi', model: '4pin', cooling: 'oba', grips: ['Grip','Cybergrip'], plug: 'Kemppi_4pin', pins: 'A-B', gas: 'Centralny' },
-  { brand: 'Fronius', model: 'TransTig210', cooling: 'Gazowy', grips: ['Grip','Cybergrip','GripPot'], plug: 'Fronius_8pin', pins: 'B-E', gas: 'Centralny' },
-  { brand: 'ESAB', model: 'Caddy', cooling: 'oba', grips: ['Grip','Cybergrip'], plug: 'Esab_2pin', pins: '1-2', gas: '1/8' },
-  { brand: 'ESAB', model: 'Rogue', cooling: 'oba', grips: ['Grip','Cybergrip'], plug: 'Esab_5pin', pins: '5-3', gas: '1/8' }
-];
+// Modele spawarek są ładowane z data.json (machineModels)
+let machineModels = [];
 
 function showConfigurator() {
   showSection('config');
@@ -524,6 +506,7 @@ async function loadDataFromGitHub() {
       throw new Error('Niepoprawny format bazy');
     }
     data = loaded;
+    machineModels = loaded.machineModels || [];
     if (infoEl) infoEl.textContent = 'data_' + stamp;
     if (statusEl) statusEl.textContent = 'Baza OK';
     if (typeof renderStep === 'function') renderStep();
