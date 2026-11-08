@@ -154,9 +154,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   <div id="section-config" class="section">
     <h1>Konfigurator uchwytów spawalniczych</h1>
     <div style="display:flex;gap:8px;margin-bottom:12px">
-      <button class="secondary" onclick="setConfiguratorMode('components')">Konfigurator</button>
-      <button class="secondary" onclick="setConfiguratorMode('model')">Konfigurator po modelu spawarki</button>
-      <button class="secondary" onclick="clearConfig()">Wyczyść</button>
+      <button class="secondary" id="btnModeComponents" onclick="setConfiguratorMode('components')">Konfigurator</button>
+      <button class="secondary" id="btnModeModel" onclick="setConfiguratorMode('model')">Konfigurator po modelu spawarki</button>
+      <button class="danger" onclick="clearConfig()">Wyczyść</button>
     </div>
     <div class="progress" id="progress"></div>
     <div class="card" id="stepContent"></div>
@@ -217,6 +217,10 @@ function setConfiguratorMode(mode) {
   } else {
     STEPS = STEPS_COMPONENTS;
   }
+  document.getElementById('btnModeComponents').style.background = mode === 'components' ? '#1e3a2f' : '';
+  document.getElementById('btnModeComponents').style.color = mode === 'components' ? 'var(--success)' : '';
+  document.getElementById('btnModeModel').style.background = mode === 'model' ? '#1e3a2f' : '';
+  document.getElementById('btnModeModel').style.color = mode === 'model' ? 'var(--success)' : '';
   renderProgress();
   renderStep();
 }
@@ -981,7 +985,7 @@ function renderSummary(content) {
   html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Telefon</label>';
   html += '<input type="text" id="customerPhone" placeholder="Nr telefonu" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);margin-bottom:12px;font-size:1rem">';
   html += '<label style="display:block;margin-bottom:6px;color:var(--muted)">Uwagi</label>';
-  html += '<textarea id="orderNotes" rows="3" placeholder="Dodatkowe uwagi do zamówienia" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);resize:vertical;font-size:1rem;font-family:inherit"></textarea>';
+  html += '<textarea id="orderNotes" rows="3" placeholder="Dodatkowe uwagi do zamówienia" style="width:100%;padding:12px;border-radius:6px;border:1px solid var(--border);background:#111820;color:var(--text);resize:vertical;font-size:1.1rem;font-family:inherit;font-weight:500"></textarea>';
   html += '</div>';
   html += '<div class="nav" style="margin-top:20px">';
   html += '<button class="success" onclick="saveOrder(\'todo\')">Do realizacji</button>';
@@ -1038,7 +1042,7 @@ function saveOrder(status) {
       order.notes = notes;
       order.customName = customName;
       order.config = { ...config };
-      order.date = new Date().toISOString();
+      order.date = formatDatePL(new Date());
     }
     delete window.editingOrderId;
     alert('Zamówienie zaktualizowane!');
